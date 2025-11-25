@@ -1,0 +1,12 @@
+{
+  "name": "panzer-markets-api",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@vercel/node": "^3.0.11",
+    "firebase-admin": "^12.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5"
+  }
+}
