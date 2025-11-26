@@ -13,12 +13,28 @@ export interface Notification {
   groupId?: string; // For join_request notifications
 }
 
+const DISMISSED_KEY = 'panzer_dismissed_notifications';
+
+function getDismissedIds(): Set<string> {
+  try {
+    const stored = localStorage.getItem(DISMISSED_KEY);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+function saveDismissedIds(ids: Set<string>) {
+  localStorage.setItem(DISMISSED_KEY, JSON.stringify([...ids]));
+}
+
 export function useNotifications(userId: string | undefined) {
   const [positions, setPositions] = useState<Position[]>([]);
   const [resolvedMarkets, setResolvedMarkets] = useState<Map<string, Market>>(new Map());
   const [groupRequests, setGroupRequests] = useState<GroupJoinRequest[]>([]);
   const [groups, setGroups] = useState<Map<string, Group>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => getDismissedIds());
 
   // Admin notification state
   const [adminMemberships, setAdminMemberships] = useState<GroupMember[]>([]);
@@ -335,8 +351,27 @@ export function useNotifications(userId: string | undefined) {
     // Sort by timestamp, newest first
     notifs.sort((a, b) => b.timestamp - a.timestamp);
 
-    return notifs;
-  }, [positions, resolvedMarkets, groupRequests, groups, pendingJoinRequests, requesters]);
+    // Filter out dismissed notifications
+    return notifs.filter(n => !dismissedIds.has(n.id));
+  }, [positions, resolvedMarkets, groupRequests, groups, pendingJoinRequests, requesters, dismissedIds]);
 
-  return { notifications, loading };
+  const dismissNotification = (id: string) => {
+    setDismissedIds(prev => {
+      const newSet = new Set(prev);
+      newSet.add(id);
+      saveDismissedIds(newSet);
+      return newSet;
+    });
+  };
+
+  const dismissAll = () => {
+    setDismissedIds(prev => {
+      const newSet = new Set(prev);
+      notifications.forEach(n => newSet.add(n.id));
+      saveDismissedIds(newSet);
+      return newSet;
+    });
+  };
+
+  return { notifications, loading, dismissNotification, dismissAll };
 }
