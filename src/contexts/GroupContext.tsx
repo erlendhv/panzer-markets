@@ -7,7 +7,7 @@ import type { Group, GroupMember, GroupJoinRequest } from '../types/firestore';
 interface GroupContextType {
   allGroups: Group[]; // All groups in the system
   myGroups: Group[]; // Groups user is a member of
-  selectedGroupId: string | null; // null = "All Markets" view
+  selectedGroupId: string | null; // null = "All Markets", 'public' = public only, otherwise group ID
   setSelectedGroupId: (id: string | null) => void;
   loading: boolean;
   memberships: Map<string, GroupMember>; // groupId -> membership

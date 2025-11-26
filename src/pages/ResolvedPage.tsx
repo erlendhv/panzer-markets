@@ -6,7 +6,7 @@ import type { Market } from '../types/firestore';
 
 export function ResolvedPage() {
   const { user } = useAuth();
-  const { selectedGroupId, myGroups } = useGroups();
+  const { selectedGroupId, myGroups, allGroups } = useGroups();
 
   const userGroupIds = myGroups.map(g => g.id);
 
@@ -16,8 +16,12 @@ export function ResolvedPage() {
     userGroupIds,
   });
 
-  const selectedGroup = selectedGroupId
-    ? myGroups.find(g => g.id === selectedGroupId)
+  // Check if public-only view is selected
+  const isPublicView = selectedGroupId === 'public';
+
+  // Use allGroups so admins can see group names for groups they're not members of
+  const selectedGroup = selectedGroupId && selectedGroupId !== 'public'
+    ? allGroups.find(g => g.id === selectedGroupId)
     : null;
 
   if (!user) {
@@ -79,11 +83,13 @@ export function ResolvedPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {selectedGroup ? `Avgjort - ${selectedGroup.name}` : 'Avgjorte bets'}
+          {selectedGroup ? `Avgjort - ${selectedGroup.name}` : isPublicView ? 'Avgjorte offentlige bets' : 'Avgjorte bets'}
         </h1>
         <p className="text-gray-600">
           {selectedGroup
             ? `Avgjorte bets i ${selectedGroup.name}`
+            : isPublicView
+            ? 'Avgjorte bets som var åpne for alle'
             : 'Se hvordan tidligere bets ble avgjort'}
         </p>
       </div>

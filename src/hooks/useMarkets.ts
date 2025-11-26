@@ -17,7 +17,7 @@ import type { Market, MarketStatus } from '../types/firestore';
 
 interface UseMarketsOptions {
   status?: MarketStatus;
-  groupId?: string | null; // null = show all accessible, specific ID = show only that group
+  groupId?: string | null; // null = show all accessible, 'public' = public only, specific ID = show only that group
   userGroupIds?: string[]; // List of groups the user belongs to (for "all" view)
 }
 
@@ -45,6 +45,9 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
       if (groupId === null) {
         // "All markets" view - we need to fetch all and filter client-side
         // because Firestore doesn't support OR queries across different fields easily
+        // We'll filter in the snapshot callback
+      } else if (groupId === 'public') {
+        // "Public only" view - filter client-side for markets without a groupId
         // We'll filter in the snapshot callback
       } else {
         // Specific group selected
@@ -74,6 +77,13 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
             }
             // Group markets only if user is a member
             return userGroupIds.includes(market.groupId);
+          });
+        }
+
+        // Client-side filtering for "public only" view
+        if (groupId === 'public') {
+          marketData = marketData.filter((market) => {
+            return market.groupId === null || market.groupId === undefined;
           });
         }
 

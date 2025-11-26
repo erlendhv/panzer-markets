@@ -1,17 +1,25 @@
-import { Link } from 'react-router-dom';
-import { useGroups } from '../contexts/GroupContext';
-import { useAuth } from '../hooks/useAuth';
+import { Link } from "react-router-dom";
+import { useGroups } from "../contexts/GroupContext";
+import { useAuth } from "../hooks/useAuth";
 
 export function Sidebar() {
   const { user } = useAuth();
-  const { allGroups, myGroups, selectedGroupId, setSelectedGroupId, loading, memberships, pendingRequests } = useGroups();
+  const {
+    allGroups,
+    myGroups,
+    selectedGroupId,
+    setSelectedGroupId,
+    loading,
+    memberships,
+    pendingRequests,
+  } = useGroups();
 
   if (!user) {
     return null;
   }
 
   // Groups user is NOT a member of
-  const otherGroups = allGroups.filter(g => !memberships.has(g.id));
+  const otherGroups = allGroups.filter((g) => !memberships.has(g.id));
 
   const handleSelectGroup = (groupId: string | null) => {
     setSelectedGroupId(groupId);
@@ -26,11 +34,24 @@ export function Sidebar() {
           onClick={() => handleSelectGroup(null)}
           className={`w-full block text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
             selectedGroupId === null
-              ? 'bg-blue-50 text-blue-700'
-              : 'text-gray-700 hover:bg-gray-100'
+              ? "bg-blue-50 text-blue-700"
+              : "text-gray-700 hover:bg-gray-100"
           }`}
         >
           Alle bets
+        </Link>
+
+        {/* Public only option */}
+        <Link
+          to="/"
+          onClick={() => handleSelectGroup("public")}
+          className={`w-full block text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+            selectedGroupId === "public"
+              ? "bg-blue-50 text-blue-700"
+              : "text-gray-700 hover:bg-gray-100"
+          }`}
+        >
+          Kun offentlige bets
         </Link>
 
         {/* My Groups */}
@@ -46,8 +67,8 @@ export function Sidebar() {
                 key={group.id}
                 className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedGroupId === group.id
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-100"
                 }`}
               >
                 <Link
@@ -58,15 +79,32 @@ export function Sidebar() {
                   {group.name}
                 </Link>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">{group.memberCount}</span>
+                  <span className="text-xs text-gray-400">
+                    {group.memberCount}
+                  </span>
                   <Link
                     to={`/groups/${group.id}`}
                     className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
                     title="Gruppeinnstillinger"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
                     </svg>
                   </Link>
                 </div>
@@ -88,6 +126,60 @@ export function Sidebar() {
             ) : (
               otherGroups.map((group) => {
                 const hasPendingRequest = pendingRequests.has(group.id);
+
+                // Site admins can view bets in any group
+                if (user?.isAdmin) {
+                  return (
+                    <div
+                      key={group.id}
+                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        selectedGroupId === group.id
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-gray-500 hover:bg-gray-100"
+                      }`}
+                    >
+                      <Link
+                        to="/"
+                        onClick={() => handleSelectGroup(group.id)}
+                        className="flex-1 text-left truncate"
+                      >
+                        {group.name}
+                      </Link>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-400">
+                          {group.memberCount}
+                        </span>
+                        <Link
+                          to={`/groups/${group.id}`}
+                          className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                          title="Gruppeinnstillinger"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Non-admin: link to group page to request joining
                 return (
                   <Link
                     key={group.id}
@@ -99,7 +191,9 @@ export function Sidebar() {
                       {hasPendingRequest ? (
                         <span className="text-xs text-yellow-600">Venter</span>
                       ) : (
-                        <span className="text-xs text-gray-400">{group.memberCount}</span>
+                        <span className="text-xs text-gray-400">
+                          {group.memberCount}
+                        </span>
                       )}
                     </div>
                   </Link>

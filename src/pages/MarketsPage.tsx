@@ -5,7 +5,7 @@ import { useGroups } from '../contexts/GroupContext';
 
 export function MarketsPage() {
   const { user } = useAuth();
-  const { selectedGroupId, myGroups } = useGroups();
+  const { selectedGroupId, myGroups, allGroups } = useGroups();
 
   // Get list of user's group IDs for filtering
   const userGroupIds = myGroups.map(g => g.id);
@@ -16,9 +16,12 @@ export function MarketsPage() {
     userGroupIds,
   });
 
-  // Find selected group name for header
-  const selectedGroup = selectedGroupId
-    ? myGroups.find(g => g.id === selectedGroupId)
+  // Check if public-only view is selected
+  const isPublicView = selectedGroupId === 'public';
+
+  // Find selected group name for header (use allGroups so admins can see group names)
+  const selectedGroup = selectedGroupId && selectedGroupId !== 'public'
+    ? allGroups.find(g => g.id === selectedGroupId)
     : null;
 
   if (!user) {
@@ -54,11 +57,13 @@ export function MarketsPage() {
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {selectedGroup ? selectedGroup.name : 'Alle bets'}
+          {selectedGroup ? selectedGroup.name : isPublicView ? 'Offentlige bets' : 'Alle bets'}
         </h1>
         <p className="text-gray-600">
           {selectedGroup
             ? `Aktive bets i ${selectedGroup.name}`
+            : isPublicView
+            ? 'Aktive bets som er åpne for alle'
             : 'Alle aktive bets du har tilgang til'}
         </p>
       </div>
