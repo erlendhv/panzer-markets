@@ -5,6 +5,7 @@ import { db } from '../lib/firebase';
 import type { Market } from '../types/firestore';
 import { OrderBookDisplay } from '../components/market/OrderBookDisplay';
 import { PlaceOrderForm } from '../components/market/PlaceOrderForm';
+import { CommentsSection } from '../components/market/CommentsSection';
 
 export function MarketDetailPage() {
   const { marketId } = useParams<{ marketId: string }>();
@@ -144,7 +145,7 @@ export function MarketDetailPage() {
       </div>
 
       {/* Trading Interface */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Order Form */}
         <div className="lg:col-span-2">
           <PlaceOrderForm market={market} />
@@ -155,6 +156,9 @@ export function MarketDetailPage() {
           <OrderBookDisplay marketId={market.id} />
         </div>
       </div>
+
+      {/* Comments */}
+      <CommentsSection marketId={market.id} />
     </div>
   );
 }

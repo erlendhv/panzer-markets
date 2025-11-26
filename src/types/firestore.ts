@@ -233,6 +233,21 @@ export interface ResolveMarketResponse {
 }
 
 // ============================================================================
+// COMMENT TYPES
+// ============================================================================
+
+export interface Comment {
+  id: string;
+  marketId: string;
+  userId: string;
+  userDisplayName: string | null;
+  userPhotoURL: string | null;
+  content: string;
+  createdAt: number;
+  updatedAt: number | null;
+}
+
+// ============================================================================
 // HELPER TYPES
 // ============================================================================
 
