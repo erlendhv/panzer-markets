@@ -3,8 +3,9 @@ import { useAuth } from '../hooks/useAuth';
 import { CreateMarketForm } from '../components/admin/CreateMarketForm';
 import { UserManagement } from '../components/admin/UserManagement';
 import { ProposalReview } from '../components/admin/ProposalReview';
+import { MarketResolution } from '../components/admin/MarketResolution';
 
-type AdminTab = 'markets' | 'users' | 'proposals';
+type AdminTab = 'markets' | 'users' | 'proposals' | 'resolve';
 
 export function AdminPage() {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ export function AdminPage() {
 
   const tabs = [
     { id: 'markets' as AdminTab, label: 'Create Market', icon: '📊' },
+    { id: 'resolve' as AdminTab, label: 'Resolve Markets', icon: '✓' },
     { id: 'users' as AdminTab, label: 'Manage Users', icon: '👥' },
     { id: 'proposals' as AdminTab, label: 'Review Proposals', icon: '📝' },
   ];
@@ -55,6 +57,7 @@ export function AdminPage() {
       {/* Tab Content */}
       <div>
         {activeTab === 'markets' && <CreateMarketForm />}
+        {activeTab === 'resolve' && <MarketResolution />}
         {activeTab === 'users' && <UserManagement />}
         {activeTab === 'proposals' && <ProposalReview />}
       </div>
