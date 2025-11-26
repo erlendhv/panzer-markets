@@ -5,6 +5,7 @@ import { useUserOrders } from '../hooks/useUserOrders';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { cancelOrder } from '../services/api';
+import { getAvailableBalance, getLockedInOrders } from '../utils/balance';
 import type { Market } from '../types/firestore';
 import { Link } from 'react-router-dom';
 
@@ -82,8 +83,11 @@ export function PortfolioPage() {
         {/* Portfolio Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Saldo</div>
-            <div className="text-2xl font-bold text-gray-900">${user.balance.toFixed(2)}</div>
+            <div className="text-sm text-gray-500">Tilgjengelig saldo</div>
+            <div className="text-2xl font-bold text-gray-900">${getAvailableBalance(user.balance, orders).toFixed(2)}</div>
+            {getLockedInOrders(orders) > 0 && (
+              <div className="text-xs text-gray-400">${getLockedInOrders(orders).toFixed(2)} i åpne ordre</div>
+            )}
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="text-sm text-gray-500">Posisjonsverdi</div>
