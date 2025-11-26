@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { Order, OrderBook, OrderBookEntry, OrderSide } from '../types/firestore';
+import type { Order, OrderBook, OrderBookEntry } from '../types/firestore';
 
 export function useOrderBook(marketId: string) {
   const [orderBook, setOrderBook] = useState<OrderBook>({ yes: [], no: [] });

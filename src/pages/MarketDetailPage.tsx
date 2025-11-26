@@ -52,7 +52,6 @@ export function MarketDetailPage() {
   }
 
   const yesPrice = market.lastTradedPrice.yes;
-  const noPrice = 1 - yesPrice; // Derive NO from YES to ensure they sum to $1.00
   const yesPercent = Math.round(yesPrice * 100);
   const noPercent = 100 - yesPercent;
 
