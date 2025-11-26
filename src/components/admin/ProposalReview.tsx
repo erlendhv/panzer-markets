@@ -49,6 +49,7 @@ export function ProposalReview() {
           yes: initialYesPrice,
           no: 1 - initialYesPrice,
         },
+        history: [],
         resolutionOutcome: null,
         resolutionNote: null,
         totalVolume: 0,

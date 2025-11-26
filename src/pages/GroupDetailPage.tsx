@@ -517,6 +517,22 @@ export function GroupDetailPage() {
         </p>
       </div>
 
+      {/* Site admin join button (when not a member) */}
+      {!isMember && user?.isAdmin && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+          <p className="text-blue-800 mb-4">
+            Du er ikke medlem av denne gruppen. Som admin kan du legge deg selv til.
+          </p>
+          <button
+            onClick={handleDirectJoin}
+            disabled={actionLoading === 'join'}
+            className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+          >
+            {actionLoading === 'join' ? 'Blir med...' : 'Bli med i gruppen'}
+          </button>
+        </div>
+      )}
+
       {/* Group settings (for admins) */}
       {isAdmin && (
         <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
@@ -550,6 +566,7 @@ export function GroupDetailPage() {
       )}
 
       {/* Invite form (for members) */}
+      {isMember && (
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4">Inviter medlem</h2>
         {availableUsers.length > 0 ? (
@@ -585,6 +602,7 @@ export function GroupDetailPage() {
           <p className="mt-2 text-sm text-green-600">Bruker lagt til!</p>
         )}
       </div>
+      )}
 
       {/* Pending join requests (for admins) */}
       {isAdmin && joinRequests.length > 0 && (
@@ -724,20 +742,22 @@ export function GroupDetailPage() {
         </div>
       </div>
 
-      {/* Leave group */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Forlat gruppe</h2>
-        <p className="text-gray-600 mb-4">
-          Hvis du forlater gruppen vil du ikke lenger se bets i denne gruppen.
-        </p>
-        <button
-          onClick={handleLeaveGroup}
-          disabled={actionLoading === 'leave'}
-          className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors"
-        >
-          {actionLoading === 'leave' ? 'Forlater...' : 'Forlat gruppe'}
-        </button>
-      </div>
+      {/* Leave group (only for members) */}
+      {isMember && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Forlat gruppe</h2>
+          <p className="text-gray-600 mb-4">
+            Hvis du forlater gruppen vil du ikke lenger se bets i denne gruppen.
+          </p>
+          <button
+            onClick={handleLeaveGroup}
+            disabled={actionLoading === 'leave'}
+            className="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 disabled:bg-gray-400 transition-colors"
+          >
+            {actionLoading === 'leave' ? 'Forlater...' : 'Forlat gruppe'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

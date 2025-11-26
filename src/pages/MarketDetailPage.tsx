@@ -5,7 +5,7 @@ import { db } from '../lib/firebase';
 import type { Market, Group } from '../types/firestore';
 import { OrderBookDisplay } from '../components/market/OrderBookDisplay';
 import { PlaceOrderForm } from '../components/market/PlaceOrderForm';
-import { CommentsSection } from '../components/market/CommentsSection';
+import { CommentsSection, CommentsSectionRef } from '../components/market/CommentsSection';
 import { MarketParticipants } from '../components/market/MarketParticipants';
 import { MarketHistoryChart } from "../components/market/MarketHistoryChart";
 import { useComments } from '../hooks/useComments';
@@ -16,11 +16,10 @@ export function MarketDetailPage() {
   const [market, setMarket] = useState<Market | null>(null);
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
-  const { comments, loading: commentsLoading } = useComments(marketId);
+  const { comments } = useComments(marketId);
   const chartRef = useRef<HTMLDivElement>(null);
-  const commentRef = useRef<any>(null);
-    const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(null);
-    const [commentTimestamp, setCommentTimestamp] = useState<number | null>(null);
+  const commentRef = useRef<CommentsSectionRef>(null);
+  const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(null);
 
 
 
@@ -269,9 +268,8 @@ export function MarketDetailPage() {
         comments={comments}
         onTimestampSelect={(ts) => {
         setSelectedTimestamp(ts);
-        setCommentTimestamp(ts);
         commentRef.current?.setAttachedTimestamp(ts);
-        setTimeout(() => commentRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+        setTimeout(() => commentRef.current?.scrollIntoView(), 50);
         }}
         highlightTimestamp={selectedTimestamp}
     />

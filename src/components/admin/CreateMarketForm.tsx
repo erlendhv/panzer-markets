@@ -46,6 +46,7 @@ export function CreateMarketForm() {
           yes: yesPrice,
           no: 1 - yesPrice,
         },
+        history: [],
         resolutionOutcome: null,
         resolutionNote: null,
         totalVolume: 0,

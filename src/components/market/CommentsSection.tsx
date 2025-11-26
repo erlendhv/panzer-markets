@@ -9,8 +9,13 @@ interface CommentsSectionProps {
   onTimestampClick?: (ts: number) => void;
 }
 
-export const CommentsSection = forwardRef<HTMLDivElement, CommentsSectionProps>(
-  ({ marketId, selectedTimestamp, clearSelectedTimestamp, onTimestampClick }, ref) => {
+export interface CommentsSectionRef {
+  scrollIntoView: () => void;
+  setAttachedTimestamp: (ts: number) => void;
+}
+
+export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionProps>(
+  ({ marketId, selectedTimestamp: _, clearSelectedTimestamp, onTimestampClick }, ref) => {
     const { user } = useAuth();
     const { comments, loading, addComment, deleteComment } = useComments(marketId);
     const [newComment, setNewComment] = useState('');
@@ -38,7 +43,7 @@ export const CommentsSection = forwardRef<HTMLDivElement, CommentsSectionProps>(
           user.displayName,
           user.photoURL,
           newComment.trim(),
-          attachedTimestamp || undefined
+          attachedTimestamp ?? null
         );
         setNewComment('');
         setAttachedTimestamp(null);

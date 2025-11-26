@@ -22,7 +22,7 @@ interface HistoryPoint {
 interface Comment {
   id: string;
   content: string;
-  referencedTimestamp?: number;
+  referencedTimestamp?: number | null;
 }
 
 interface MarketHistoryChartProps {
@@ -94,7 +94,7 @@ export function MarketHistoryChart({
       y: {
         beginAtZero: true,
         max: 100,
-        ticks: { callback: (v: number) => `${v}%` },
+        ticks: { callback: (v: string | number) => `${v}%` },
         title: { display: true, text: "JA-sjanse (%)" },
       },
     },
@@ -115,7 +115,7 @@ export function MarketHistoryChart({
         },
       },
     },
-    onClick: (evt: any, elements: any[]) => {
+    onClick: (_evt: any, elements: any[]) => {
       if (!elements || elements.length === 0) return;
       const element = elements[0];
       const datasetIndex = element.datasetIndex;
