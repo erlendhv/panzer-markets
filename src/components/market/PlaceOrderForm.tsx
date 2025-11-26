@@ -10,11 +10,22 @@ interface PlaceOrderFormProps {
 export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
   const { user } = useAuth();
   const [side, setSide] = useState<OrderSide>('YES');
-  const [priceLimit, setPriceLimit] = useState('0.50');
+  const [priceLimit, setPriceLimit] = useState(
+    () => market.lastTradedPrice.yes.toFixed(2)
+  );
   const [amount, setAmount] = useState('10');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const handleSideChange = (newSide: OrderSide) => {
+    setSide(newSide);
+    // Set price to the last traded price for this side
+    const price = newSide === 'YES'
+      ? market.lastTradedPrice.yes
+      : market.lastTradedPrice.no;
+    setPriceLimit(price.toFixed(2));
+  };
 
   if (!user) {
     return (
@@ -95,7 +106,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
-              onClick={() => setSide('YES')}
+              onClick={() => handleSideChange('YES')}
               className={`p-4 rounded-lg border-2 font-medium transition-all ${
                 side === 'YES'
                   ? 'border-green-500 bg-green-50 text-green-700'
@@ -107,7 +118,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
             </button>
             <button
               type="button"
-              onClick={() => setSide('NO')}
+              onClick={() => handleSideChange('NO')}
               className={`p-4 rounded-lg border-2 font-medium transition-all ${
                 side === 'NO'
                   ? 'border-red-500 bg-red-50 text-red-700'

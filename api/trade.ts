@@ -197,9 +197,13 @@ async function matchOrder(
       const fillAmount = Math.min(remainingAmount, oppositeOrder.remainingAmount);
       const sharesTraded = fillAmount / 1.0; // Each share costs $1 total
 
-      // Determine prices (user pays their limit, counterparty pays theirs)
-      const yesPrice = orderRequest.side === 'YES' ? orderRequest.priceLimit : oppositeOrder.priceLimit;
-      const noPrice = orderRequest.side === 'NO' ? orderRequest.priceLimit : oppositeOrder.priceLimit;
+      // Determine the execution price (maker's price determines the trade)
+      // The taker gets the maker's price, which may be better than their limit
+      // YES + NO must always equal $1.00
+      const executionYesPrice = oppositeSide === 'NO'
+        ? (1 - oppositeOrder.priceLimit)  // Derive YES from NO maker's price
+        : oppositeOrder.priceLimit;        // Use YES maker's price directly
+      const executionNoPrice = 1 - executionYesPrice;
 
       // Create trade record
       const tradeId = db.collection('trades').doc().id;
@@ -211,8 +215,8 @@ async function matchOrder(
         yesUserId: orderRequest.side === 'YES' ? userId : oppositeOrder.userId,
         noUserId: orderRequest.side === 'NO' ? userId : oppositeOrder.userId,
         side: orderRequest.side,
-        yesPrice,
-        noPrice,
+        yesPrice: executionYesPrice,
+        noPrice: executionNoPrice,
         sharesTraded,
         totalAmount: fillAmount,
         executedAt: now,
@@ -271,11 +275,11 @@ async function matchOrder(
       // Record trade
       transaction.set(db.collection('trades').doc(tradeId), trade);
 
-      // Update market stats
+      // Update market stats (use normalized execution prices that sum to $1.00)
       transaction.update(marketRef, {
         lastTradedPrice: {
-          yes: yesPrice,
-          no: noPrice,
+          yes: executionYesPrice,
+          no: executionNoPrice,
         },
         totalVolume: FieldValue.increment(fillAmount),
         totalYesShares: FieldValue.increment(sharesTraded),
