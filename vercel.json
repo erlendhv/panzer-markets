@@ -1,13 +1,9 @@
 {
   "framework": "vite",
-  "devCommand": "vite --port 3000",
   "functions": {
     "api/**/*.ts": {
       "memory": 1024,
       "maxDuration": 60
     }
-  },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  }
 }
