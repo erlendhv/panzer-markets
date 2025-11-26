@@ -2,6 +2,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useUserOrders } from '../hooks/useUserOrders';
 import { getAvailableBalance } from '../utils/balance';
 import { NotificationBell } from './NotificationBell';
+import { InfoButton } from './InfoButton';
 
 export function AuthButton() {
   const { user, loading, error, signInWithGoogle, signOut } = useAuth();
@@ -18,6 +19,7 @@ export function AuthButton() {
   if (user) {
     return (
       <div className="flex items-center gap-4">
+        <InfoButton />
         <NotificationBell userId={user.uid} />
         <div className="text-right">
           <div className="text-sm font-medium text-gray-900">{user.displayName}</div>
