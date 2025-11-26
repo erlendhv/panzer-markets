@@ -23,6 +23,7 @@ const db = getFirestore();
 
 interface RequestToJoinGroupRequest {
   groupId: string;
+  message: string;
 }
 
 interface RequestToJoinGroupResponse {
@@ -47,10 +48,20 @@ async function handler(
       return;
     }
 
-    const { groupId } = req.body as RequestToJoinGroupRequest;
+    const { groupId, message } = req.body as RequestToJoinGroupRequest;
 
     if (!groupId) {
       res.status(400).json({ success: false, error: 'Group ID is required' });
+      return;
+    }
+
+    if (!message || message.trim().length === 0) {
+      res.status(400).json({ success: false, error: 'Message is required' });
+      return;
+    }
+
+    if (message.length > 500) {
+      res.status(400).json({ success: false, error: 'Message must be 500 characters or less' });
       return;
     }
 
@@ -83,6 +94,7 @@ async function handler(
       id: `${groupId}_${userId}`,
       groupId,
       userId,
+      message: message.trim(),
       status: 'pending',
       requestedAt: now,
       reviewedBy: null,

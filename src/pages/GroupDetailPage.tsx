@@ -29,6 +29,9 @@ export function GroupDetailPage() {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState(false);
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [joinMessage, setJoinMessage] = useState('');
+  const [joinError, setJoinError] = useState<string | null>(null);
 
   const currentMembership = groupId ? memberships.get(groupId) : null;
   const isMember = !!currentMembership;
@@ -164,9 +167,11 @@ export function GroupDetailPage() {
     }
   };
 
-  const handleRequestToJoin = async () => {
-    if (!user || !groupId) return;
+  const handleRequestToJoin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !groupId || !joinMessage.trim()) return;
 
+    setJoinError(null);
     setActionLoading('request');
 
     try {
@@ -176,7 +181,7 @@ export function GroupDetailPage() {
           'Content-Type': 'application/json',
           'x-user-id': user.uid,
         },
-        body: JSON.stringify({ groupId }),
+        body: JSON.stringify({ groupId, message: joinMessage }),
       });
 
       const result = await response.json();
@@ -188,7 +193,7 @@ export function GroupDetailPage() {
       // Refresh page to show updated status
       window.location.reload();
     } catch (err: any) {
-      alert(err.message || 'Failed to request to join');
+      setJoinError(err.message || 'Failed to request to join');
     } finally {
       setActionLoading(null);
     }
@@ -365,12 +370,61 @@ export function GroupDetailPage() {
           </div>
         ) : (
           <button
-            onClick={handleRequestToJoin}
-            disabled={actionLoading === 'request'}
-            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+            onClick={() => setShowJoinModal(true)}
+            className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
           >
-            {actionLoading === 'request' ? 'Sender forespørsel...' : 'Be om å bli med'}
+            Be om å bli med
           </button>
+        )}
+
+        {/* Join request modal */}
+        {showJoinModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 text-left">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Be om å bli med i {group.name}</h3>
+              <form onSubmit={handleRequestToJoin}>
+                <div className="mb-4">
+                  <label htmlFor="joinMessage" className="block text-sm font-medium text-gray-700 mb-2">
+                    Skriv en melding til admin
+                  </label>
+                  <textarea
+                    id="joinMessage"
+                    value={joinMessage}
+                    onChange={(e) => setJoinMessage(e.target.value)}
+                    placeholder="Fortell hvorfor du vil bli med i gruppen..."
+                    required
+                    maxLength={500}
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">{joinMessage.length}/500 tegn</p>
+                </div>
+                {joinError && (
+                  <p className="text-sm text-red-600 mb-4">{joinError}</p>
+                )}
+                <div className="flex gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowJoinModal(false);
+                      setJoinMessage('');
+                      setJoinError(null);
+                    }}
+                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    Avbryt
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={actionLoading === 'request' || !joinMessage.trim()}
+                    className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
+                  >
+                    {actionLoading === 'request' ? 'Sender...' : 'Send forespørsel'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
       </div>
     );
@@ -431,51 +485,58 @@ export function GroupDetailPage() {
           <h2 className="text-lg font-bold text-gray-900 mb-4">
             Ventende forespørsler ({joinRequests.length})
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {joinRequests.map((request) => (
               <div
                 key={request.id}
-                className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+                className="py-4 border-b border-gray-100 last:border-0"
               >
-                <div className="flex items-center gap-3">
-                  {request.user?.photoURL ? (
-                    <img
-                      src={request.user.photoURL}
-                      alt=""
-                      className="w-10 h-10 rounded-full"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500 text-sm">
-                        {request.user?.displayName?.[0] || '?'}
-                      </span>
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {request.user?.displayName || request.user?.email || 'Ukjent bruker'}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      Ba om å bli med {new Date(request.requestedAt).toLocaleDateString('nb-NO')}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-3">
+                    {request.user?.photoURL ? (
+                      <img
+                        src={request.user.photoURL}
+                        alt=""
+                        className="w-10 h-10 rounded-full"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500 text-sm">
+                          {request.user?.displayName?.[0] || '?'}
+                        </span>
+                      </div>
+                    )}
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {request.user?.displayName || request.user?.email || 'Ukjent bruker'}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Ba om å bli med {new Date(request.requestedAt).toLocaleDateString('nb-NO')}
+                      </div>
                     </div>
                   </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleJoinRequestAction(request.userId, 'approve')}
+                      disabled={actionLoading === `approve-${request.userId}`}
+                      className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+                    >
+                      {actionLoading === `approve-${request.userId}` ? '...' : 'Godkjenn'}
+                    </button>
+                    <button
+                      onClick={() => handleJoinRequestAction(request.userId, 'deny')}
+                      disabled={actionLoading === `deny-${request.userId}`}
+                      className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400 transition-colors"
+                    >
+                      {actionLoading === `deny-${request.userId}` ? '...' : 'Avslå'}
+                    </button>
+                  </div>
                 </div>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleJoinRequestAction(request.userId, 'approve')}
-                    disabled={actionLoading === `approve-${request.userId}`}
-                    className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400 transition-colors"
-                  >
-                    {actionLoading === `approve-${request.userId}` ? '...' : 'Godkjenn'}
-                  </button>
-                  <button
-                    onClick={() => handleJoinRequestAction(request.userId, 'deny')}
-                    disabled={actionLoading === `deny-${request.userId}`}
-                    className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700 disabled:bg-gray-400 transition-colors"
-                  >
-                    {actionLoading === `deny-${request.userId}` ? '...' : 'Avslå'}
-                  </button>
-                </div>
+                {request.message && (
+                  <div className="ml-13 pl-13 bg-gray-50 rounded-lg p-3 mt-2">
+                    <p className="text-sm text-gray-600 italic">"{request.message}"</p>
+                  </div>
+                )}
               </div>
             ))}
           </div>

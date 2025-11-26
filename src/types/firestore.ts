@@ -46,6 +46,7 @@ export interface GroupJoinRequest {
   id: string; // Format: `${groupId}_${userId}`
   groupId: string;
   userId: string;
+  message: string; // Message from user explaining why they want to join
   status: 'pending' | 'approved' | 'denied';
   requestedAt: number;
   reviewedBy: string | null;
