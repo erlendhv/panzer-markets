@@ -11,7 +11,8 @@ import type {
   ResolveMarketResponse,
   Market,
   Position,
-  User
+  User,
+  GroupMember
 } from '../src/types/firestore';
 
 // Initialize Firebase Admin
@@ -43,13 +44,6 @@ async function handler(
       return;
     }
 
-    // Check if user is admin
-    const userDoc = await db.collection('users').doc(userId).get();
-    if (!userDoc.exists || !(userDoc.data() as User).isAdmin) {
-      res.status(403).json({ success: false, error: 'Admin access required' });
-      return;
-    }
-
     const request = req.body as ResolveMarketRequest;
 
     if (!request.marketId || !request.outcome) {
@@ -59,6 +53,36 @@ async function handler(
 
     if (!['YES', 'NO', 'INVALID'].includes(request.outcome)) {
       res.status(400).json({ success: false, error: 'Outcome must be YES, NO, or INVALID' });
+      return;
+    }
+
+    // Get market to check permissions
+    const marketDoc = await db.collection('markets').doc(request.marketId).get();
+    if (!marketDoc.exists) {
+      res.status(404).json({ success: false, error: 'Market not found' });
+      return;
+    }
+    const market = marketDoc.data() as Market;
+
+    // Check user permissions
+    const userDoc = await db.collection('users').doc(userId).get();
+    const userData = userDoc.exists ? (userDoc.data() as User) : null;
+    const isSiteAdmin = userData?.isAdmin === true;
+    const isMarketCreator = market.creatorId === userId;
+
+    // Check if user is group admin (for group markets)
+    let isGroupAdmin = false;
+    if (market.groupId) {
+      const memberDoc = await db.collection('groupMembers').doc(`${market.groupId}_${userId}`).get();
+      if (memberDoc.exists) {
+        const membership = memberDoc.data() as GroupMember;
+        isGroupAdmin = membership.role === 'admin';
+      }
+    }
+
+    // Permission check: site admin, market creator, or group admin
+    if (!isSiteAdmin && !isMarketCreator && !isGroupAdmin) {
+      res.status(403).json({ success: false, error: 'You do not have permission to resolve this market' });
       return;
     }
 

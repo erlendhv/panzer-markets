@@ -1,10 +1,25 @@
 import { useMarkets } from '../hooks/useMarkets';
 import { MarketCard } from '../components/MarketCard';
 import { useAuth } from '../hooks/useAuth';
+import { useGroups } from '../contexts/GroupContext';
 
 export function MarketsPage() {
-  const { markets, loading, error } = useMarkets('open');
   const { user } = useAuth();
+  const { selectedGroupId, myGroups } = useGroups();
+
+  // Get list of user's group IDs for filtering
+  const userGroupIds = myGroups.map(g => g.id);
+
+  const { markets, loading, error } = useMarkets({
+    status: 'open',
+    groupId: selectedGroupId,
+    userGroupIds,
+  });
+
+  // Find selected group name for header
+  const selectedGroup = selectedGroupId
+    ? myGroups.find(g => g.id === selectedGroupId)
+    : null;
 
   if (!user) {
     return (
@@ -38,9 +53,13 @@ export function MarketsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Aktive bets</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          {selectedGroup ? selectedGroup.name : 'Alle bets'}
+        </h1>
         <p className="text-gray-600">
-          Bett mot Panzere
+          {selectedGroup
+            ? `Aktive bets i ${selectedGroup.name}`
+            : 'Alle aktive bets du har tilgang til'}
         </p>
       </div>
 

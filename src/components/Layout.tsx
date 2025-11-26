@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { AuthButton } from './AuthButton';
+import { Sidebar } from './Sidebar';
 import { useAuth } from '../hooks/useAuth';
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -20,7 +21,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-8">
               <Link to="/" className="flex items-center gap-2">
@@ -51,9 +52,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </nav>
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {children}
-      </main>
+      <div className="flex">
+        {user && <Sidebar />}
+        <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 max-w-6xl">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

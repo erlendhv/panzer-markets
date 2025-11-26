@@ -41,6 +41,7 @@ export function ProposalReview() {
         description: proposal.description,
         creatorId: user.uid,
         status: 'open',
+        groupId: proposal.groupId ?? null, // null for public markets
         createdAt: Date.now(),
         resolutionDate: proposal.suggestedResolutionDate,
         resolvedAt: null,

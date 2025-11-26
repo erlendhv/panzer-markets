@@ -19,6 +19,40 @@ export interface User {
 }
 
 // ============================================================================
+// GROUP TYPES
+// ============================================================================
+
+export interface Group {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: number;
+  createdBy: string;
+  memberCount: number;
+}
+
+export type GroupRole = 'admin' | 'member';
+
+export interface GroupMember {
+  id: string; // Format: `${groupId}_${userId}`
+  groupId: string;
+  userId: string;
+  role: GroupRole;
+  joinedAt: number;
+  invitedBy: string;
+}
+
+export interface GroupJoinRequest {
+  id: string; // Format: `${groupId}_${userId}`
+  groupId: string;
+  userId: string;
+  status: 'pending' | 'approved' | 'denied';
+  requestedAt: number;
+  reviewedBy: string | null;
+  reviewedAt: number | null;
+}
+
+// ============================================================================
 // MARKET TYPES
 // ============================================================================
 
@@ -32,6 +66,7 @@ export interface Market {
   description: string;
   creatorId: string;
   status: MarketStatus;
+  groupId: string | null; // null = public market
 
   // Timestamps
   createdAt: number; // Unix timestamp
@@ -175,6 +210,7 @@ export interface MarketProposal {
   question: string;
   description: string;
   suggestedResolutionDate: number;
+  groupId: string | null; // null = public market proposal (requires site admin approval)
 
   // Status
   status: 'pending' | 'approved' | 'rejected';

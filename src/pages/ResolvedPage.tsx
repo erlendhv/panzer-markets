@@ -1,11 +1,24 @@
 import { useMarkets } from '../hooks/useMarkets';
 import { MarketCard } from '../components/MarketCard';
 import { useAuth } from '../hooks/useAuth';
+import { useGroups } from '../contexts/GroupContext';
 import type { Market } from '../types/firestore';
 
 export function ResolvedPage() {
-  const { markets, loading, error } = useMarkets('resolved');
   const { user } = useAuth();
+  const { selectedGroupId, myGroups } = useGroups();
+
+  const userGroupIds = myGroups.map(g => g.id);
+
+  const { markets, loading, error } = useMarkets({
+    status: 'resolved',
+    groupId: selectedGroupId,
+    userGroupIds,
+  });
+
+  const selectedGroup = selectedGroupId
+    ? myGroups.find(g => g.id === selectedGroupId)
+    : null;
 
   if (!user) {
     return (
@@ -65,9 +78,13 @@ export function ResolvedPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Avgjorte bets</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          {selectedGroup ? `Avgjort - ${selectedGroup.name}` : 'Avgjorte bets'}
+        </h1>
         <p className="text-gray-600">
-          Se hvordan tidligere bets ble avgjort
+          {selectedGroup
+            ? `Avgjorte bets i ${selectedGroup.name}`
+            : 'Se hvordan tidligere bets ble avgjort'}
         </p>
       </div>
 

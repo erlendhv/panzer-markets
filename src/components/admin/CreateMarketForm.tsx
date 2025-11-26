@@ -38,6 +38,7 @@ export function CreateMarketForm() {
         description: formData.description,
         creatorId: user.uid,
         status: 'open',
+        groupId: null, // Admin-created markets are public
         createdAt: Date.now(),
         resolutionDate: resolutionTimestamp,
         resolvedAt: null,
