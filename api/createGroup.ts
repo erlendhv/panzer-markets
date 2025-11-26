@@ -24,6 +24,7 @@ const db = getFirestore();
 interface CreateGroupRequest {
   name: string;
   description: string;
+  isOpen?: boolean;
 }
 
 interface CreateGroupResponse {
@@ -48,14 +49,14 @@ async function handler(
       return;
     }
 
-    const { name, description } = req.body as CreateGroupRequest;
+    const { name, description, isOpen } = req.body as CreateGroupRequest;
 
     if (!name || name.trim().length < 3 || name.trim().length > 50) {
       res.status(400).json({ success: false, error: 'Group name must be 3-50 characters' });
       return;
     }
 
-    const result = await createGroup(userId, name.trim(), description?.trim() || '');
+    const result = await createGroup(userId, name.trim(), description?.trim() || '', isOpen ?? false);
     res.status(200).json(result);
   } catch (error) {
     console.error('Error creating group:', error);
@@ -69,7 +70,8 @@ async function handler(
 async function createGroup(
   userId: string,
   name: string,
-  description: string
+  description: string,
+  isOpen: boolean
 ): Promise<CreateGroupResponse> {
   const now = Date.now();
 
@@ -84,6 +86,7 @@ async function createGroup(
     createdAt: now,
     createdBy: userId,
     memberCount: 1,
+    isOpen,
   };
 
   // Create the membership document for the creator as admin

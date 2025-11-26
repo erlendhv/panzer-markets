@@ -11,6 +11,7 @@ export function CreateGroupPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
+    isOpen: false,
   });
 
   if (!user) {
@@ -37,6 +38,7 @@ export function CreateGroupPage() {
         body: JSON.stringify({
           name: formData.name,
           description: formData.description,
+          isOpen: formData.isOpen,
         }),
       });
 
@@ -110,6 +112,31 @@ export function CreateGroupPage() {
               placeholder="Hva handler denne gruppen om?"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
+          </div>
+
+          {/* Open Group Toggle */}
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <p className="font-medium text-gray-900">Åpen gruppe</p>
+              <p className="text-sm text-gray-500">
+                {formData.isOpen
+                  ? 'Alle kan bli med uten godkjenning'
+                  : 'Nye medlemmer må godkjennes av admin'}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setFormData(prev => ({ ...prev, isOpen: !prev.isOpen }))}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                formData.isOpen ? 'bg-green-600' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  formData.isOpen ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
           </div>
 
           {/* Error Message */}

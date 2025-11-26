@@ -333,6 +333,64 @@ export function GroupDetailPage() {
     }
   };
 
+  const handleDirectJoin = async () => {
+    if (!user || !groupId) return;
+
+    setActionLoading('join');
+
+    try {
+      const response = await fetch('/api/joinGroup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user.uid,
+        },
+        body: JSON.stringify({ groupId }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to join group');
+      }
+
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.message || 'Failed to join group');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleToggleOpen = async () => {
+    if (!user || !groupId || !group) return;
+
+    setActionLoading('toggleOpen');
+
+    try {
+      const response = await fetch('/api/updateGroupSettings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': user.uid,
+        },
+        body: JSON.stringify({ groupId, isOpen: !group.isOpen }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to update settings');
+      }
+
+      setGroup({ ...group, isOpen: !group.isOpen });
+    } catch (err: any) {
+      alert(err.message || 'Failed to update settings');
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -362,7 +420,15 @@ export function GroupDetailPage() {
           {group.memberCount} {group.memberCount === 1 ? 'medlem' : 'medlemmer'}
         </p>
 
-        {hasPendingRequest ? (
+        {group.isOpen ? (
+          <button
+            onClick={handleDirectJoin}
+            disabled={actionLoading === 'join'}
+            className="px-6 py-3 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:bg-gray-400 transition-colors"
+          >
+            {actionLoading === 'join' ? 'Blir med...' : 'Bli med'}
+          </button>
+        ) : hasPendingRequest ? (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <p className="text-yellow-800">
               Du har allerede bedt om å bli med. Venter på godkjenning fra admin.
@@ -375,6 +441,10 @@ export function GroupDetailPage() {
           >
             Be om å bli med
           </button>
+        )}
+
+        {group.isOpen && (
+          <p className="text-sm text-green-600 mt-3">Denne gruppen er åpen - alle kan bli med</p>
         )}
 
         {/* Join request modal */}
@@ -439,8 +509,45 @@ export function GroupDetailPage() {
         )}
         <p className="text-sm text-gray-500 mt-2">
           {group.memberCount} {group.memberCount === 1 ? 'medlem' : 'medlemmer'}
+          {group.isOpen && (
+            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+              Åpen gruppe
+            </span>
+          )}
         </p>
       </div>
+
+      {/* Group settings (for admins) */}
+      {isAdmin && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-4">Gruppeinnstillinger</h2>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-gray-900">
+                {group.isOpen ? 'Åpen gruppe' : 'Lukket gruppe'}
+              </p>
+              <p className="text-sm text-gray-500">
+                {group.isOpen
+                  ? 'Alle kan bli med uten godkjenning'
+                  : 'Nye medlemmer må godkjennes av admin'}
+              </p>
+            </div>
+            <button
+              onClick={handleToggleOpen}
+              disabled={actionLoading === 'toggleOpen'}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                group.isOpen ? 'bg-green-600' : 'bg-gray-200'
+              } ${actionLoading === 'toggleOpen' ? 'opacity-50' : ''}`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  group.isOpen ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Invite form (for members) */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">

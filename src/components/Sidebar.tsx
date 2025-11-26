@@ -188,13 +188,20 @@ export function Sidebar() {
                   >
                     <div className="flex items-center justify-between">
                       <span className="truncate">{group.name}</span>
-                      {hasPendingRequest ? (
-                        <span className="text-xs text-yellow-600">Venter</span>
-                      ) : (
-                        <span className="text-xs text-gray-400">
-                          {group.memberCount}
-                        </span>
-                      )}
+                      <div className="flex items-center gap-1">
+                        {group.isOpen && (
+                          <span className="text-xs text-green-600" title="Åpen gruppe">
+                            Åpen
+                          </span>
+                        )}
+                        {hasPendingRequest ? (
+                          <span className="text-xs text-yellow-600">Venter</span>
+                        ) : (
+                          <span className="text-xs text-gray-400">
+                            {group.memberCount}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </Link>
                 );

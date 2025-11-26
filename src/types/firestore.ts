@@ -29,6 +29,7 @@ export interface Group {
   createdAt: number;
   createdBy: string;
   memberCount: number;
+  isOpen: boolean; // If true, anyone can join without approval
 }
 
 export type GroupRole = 'admin' | 'member';
