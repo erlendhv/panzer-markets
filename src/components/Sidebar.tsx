@@ -13,20 +13,25 @@ export function Sidebar() {
   // Groups user is NOT a member of
   const otherGroups = allGroups.filter(g => !memberships.has(g.id));
 
+  const handleSelectGroup = (groupId: string | null) => {
+    setSelectedGroupId(groupId);
+  };
+
   return (
     <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-64px)] p-4">
       <div className="space-y-1">
         {/* All Markets option */}
-        <button
-          onClick={() => setSelectedGroupId(null)}
-          className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+        <Link
+          to="/"
+          onClick={() => handleSelectGroup(null)}
+          className={`w-full block text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
             selectedGroupId === null
               ? 'bg-blue-50 text-blue-700'
               : 'text-gray-700 hover:bg-gray-100'
           }`}
         >
           Alle bets
-        </button>
+        </Link>
 
         {/* My Groups */}
         {myGroups.length > 0 && (
@@ -45,17 +50,17 @@ export function Sidebar() {
                     : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                <button
-                  onClick={() => setSelectedGroupId(group.id)}
+                <Link
+                  to="/"
+                  onClick={() => handleSelectGroup(group.id)}
                   className="flex-1 text-left truncate"
                 >
                   {group.name}
-                </button>
+                </Link>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-400">{group.memberCount}</span>
                   <Link
                     to={`/groups/${group.id}`}
-                    onClick={(e) => e.stopPropagation()}
                     className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
                     title="Gruppeinnstillinger"
                   >
