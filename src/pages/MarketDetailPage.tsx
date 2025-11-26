@@ -1,8 +1,8 @@
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { Market } from '../types/firestore';
+import type { Market, Group } from '../types/firestore';
 import { OrderBookDisplay } from '../components/market/OrderBookDisplay';
 import { PlaceOrderForm } from '../components/market/PlaceOrderForm';
 import { CommentsSection } from '../components/market/CommentsSection';
@@ -11,6 +11,7 @@ import { MarketParticipants } from '../components/market/MarketParticipants';
 export function MarketDetailPage() {
   const { marketId } = useParams<{ marketId: string }>();
   const [market, setMarket] = useState<Market | null>(null);
+  const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,11 +19,23 @@ export function MarketDetailPage() {
 
     const unsubscribe = onSnapshot(
       doc(db, 'markets', marketId),
-      (snapshot) => {
+      async (snapshot) => {
         if (snapshot.exists()) {
-          setMarket({ id: snapshot.id, ...snapshot.data() } as Market);
+          const marketData = { id: snapshot.id, ...snapshot.data() } as Market;
+          setMarket(marketData);
+
+          // Fetch group if market belongs to one
+          if (marketData.groupId) {
+            const groupDoc = await getDoc(doc(db, 'groups', marketData.groupId));
+            if (groupDoc.exists()) {
+              setGroup({ id: groupDoc.id, ...groupDoc.data() } as Group);
+            }
+          } else {
+            setGroup(null);
+          }
         } else {
           setMarket(null);
+          setGroup(null);
         }
         setLoading(false);
       },
@@ -141,6 +154,20 @@ export function MarketDetailPage() {
             {market.description && (
               <p className="text-gray-600">{market.description}</p>
             )}
+            <div className="mt-2">
+              {group ? (
+                <Link
+                  to={`/groups/${group.id}`}
+                  className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                >
+                  <span className="text-gray-500">Gruppe:</span> {group.name}
+                </Link>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-sm text-gray-500">
+                  Offentlig marked
+                </span>
+              )}
+            </div>
           </div>
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(market.status)}`}>
             {getStatusLabel(market.status)}
