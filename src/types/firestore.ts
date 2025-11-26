@@ -284,6 +284,7 @@ export interface Comment {
   content: string;
   createdAt: number;
   updatedAt: number | null;
+  referencedTimestamp?: number | null;
 }
 
 // ============================================================================

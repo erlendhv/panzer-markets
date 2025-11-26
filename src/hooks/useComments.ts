@@ -51,13 +51,14 @@ export function useComments(marketId: string | undefined) {
     return unsubscribe;
   }, [marketId]);
 
-  const addComment = async (
+    const addComment = async (
     marketId: string,
     userId: string,
     userDisplayName: string | null,
     userPhotoURL: string | null,
-    content: string
-  ) => {
+    content: string,
+    referencedTimestamp: number | null
+    ) => {
     const newComment: Omit<Comment, 'id'> = {
       marketId,
       userId,
@@ -66,6 +67,7 @@ export function useComments(marketId: string | undefined) {
       content,
       createdAt: Date.now(),
       updatedAt: null,
+      referencedTimestamp: referencedTimestamp || null,
     };
 
     await addDoc(collection(db, 'comments'), newComment);

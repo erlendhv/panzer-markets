@@ -19,7 +19,25 @@ interface HistoryPoint {
   yesChance: number; // 0.0 → 1.0
 }
 
-export function MarketHistoryChart({ history }: { history: HistoryPoint[] }) {
+interface Comment {
+  id: string;
+  content: string;
+  referencedTimestamp?: number;
+}
+
+interface MarketHistoryChartProps {
+  history: HistoryPoint[];
+  comments?: Comment[];
+  onTimestampSelect?: (timestamp: number) => void;
+  highlightTimestamp?: number | null;
+}
+
+export function MarketHistoryChart({
+  history,
+  comments = [],
+  onTimestampSelect,
+  highlightTimestamp,
+}: MarketHistoryChartProps) {
   if (!history || history.length === 0) return null;
 
   const parsed = history.map((h) => ({
@@ -31,12 +49,21 @@ export function MarketHistoryChart({ history }: { history: HistoryPoint[] }) {
     datasets: [
       {
         label: "JA-sjanse (%)",
-        data: parsed.map(p => ({ x: p.date, y: p.value })),
+        data: parsed.map(p => ({
+          x: p.date,
+          y: p.value,
+          // store timestamp for easy reference
+          ts: p.date.getTime(),
+        })),
         borderColor: "#16a34a",
         backgroundColor: "rgba(22, 163, 74, 0.2)",
         borderWidth: 2,
-        pointRadius: 3,
+        pointRadius: 5,
+        pointHoverRadius: 6,
         tension: 0.25,
+        pointBackgroundColor: parsed.map(p =>
+          highlightTimestamp && highlightTimestamp === p.date.getTime() ? "#facc15" : "#16a34a"
+        ),
       }
     ]
   };
@@ -46,47 +73,55 @@ export function MarketHistoryChart({ history }: { history: HistoryPoint[] }) {
     scales: {
       x: {
         type: "time" as const,
-      time: {
-      tooltipFormat: "PPpp",
-      displayFormats: {
-        millisecond: "HH:mm:ss.SSS",
-        second: "HH:mm:ss",
-        minute: "HH:mm",
-        hour: "HH:mm",
-        day: "MMM d",
-        month: "MMM yyyy",
-        year: "yyyy",
-      },
-      },
+        time: {
+          tooltipFormat: "PPpp",
+          displayFormats: {
+            millisecond: "HH:mm:ss.SSS",
+            second: "HH:mm:ss",
+            minute: "HH:mm",
+            hour: "HH:mm",
+            day: "MMM d",
+            month: "MMM yyyy",
+            year: "yyyy",
+          },
+        },
         title: {
           display: true,
           text: "Tid",
         },
-        ticks: {
-          maxRotation: 0,
-          autoSkip: true, // automatically skip ticks to avoid overlap
-          maxTicksLimit: 6, // max number of ticks shown
-        },
+        ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 6 },
       },
       y: {
         beginAtZero: true,
         max: 100,
-        ticks: {
-          callback: (v: number) => `${v}%`,
-        },
-        title: {
-          display: true,
-          text: "JA-sjanse (%)",
-        },
+        ticks: { callback: (v: number) => `${v}%` },
+        title: { display: true, text: "JA-sjanse (%)" },
       },
     },
     plugins: {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (ctx: any) => `${ctx.raw.y}%`,
+          label: (ctx: any) => {
+            const ts = ctx.raw.ts;
+            const value = ctx.raw.y;
+            const relatedComments = comments
+              .filter(c => c.referencedTimestamp === ts)
+              .slice(0, 3)
+              .map(c => `- ${c.content}`)
+              .join("\n");
+            return relatedComments ? `${value}%\n${relatedComments}` : `${value}%`;
+          },
         },
       },
+    },
+    onClick: (evt: any, elements: any[]) => {
+      if (!elements || elements.length === 0) return;
+      const element = elements[0];
+      const datasetIndex = element.datasetIndex;
+      const index = element.index;
+      const ts = data.datasets[datasetIndex].data[index].ts;
+      if (onTimestampSelect) onTimestampSelect(ts);
     },
   };
 

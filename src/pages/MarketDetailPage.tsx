@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Market, Group } from '../types/firestore';
@@ -8,12 +8,23 @@ import { PlaceOrderForm } from '../components/market/PlaceOrderForm';
 import { CommentsSection } from '../components/market/CommentsSection';
 import { MarketParticipants } from '../components/market/MarketParticipants';
 import { MarketHistoryChart } from "../components/market/MarketHistoryChart";
+import { useComments } from '../hooks/useComments';
+
 
 export function MarketDetailPage() {
   const { marketId } = useParams<{ marketId: string }>();
   const [market, setMarket] = useState<Market | null>(null);
   const [group, setGroup] = useState<Group | null>(null);
   const [loading, setLoading] = useState(true);
+  const { comments, loading: commentsLoading } = useComments(marketId);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const commentRef = useRef<any>(null);
+    const [selectedTimestamp, setSelectedTimestamp] = useState<number | null>(null);
+    const [commentTimestamp, setCommentTimestamp] = useState<number | null>(null);
+
+
+
+
 
   useEffect(() => {
     if (!marketId) return;
@@ -252,7 +263,21 @@ export function MarketDetailPage() {
         </div>
       </div>
 
-      <MarketHistoryChart history={market.history} />
+    <div ref={chartRef}>
+    <MarketHistoryChart
+        history={market.history}
+        comments={comments}
+        onTimestampSelect={(ts) => {
+        setSelectedTimestamp(ts);
+        setCommentTimestamp(ts);
+        commentRef.current?.setAttachedTimestamp(ts);
+        setTimeout(() => commentRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+        }}
+        highlightTimestamp={selectedTimestamp}
+    />
+    </div>
+
+
 
       {/* Trading Interface */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -269,7 +294,17 @@ export function MarketDetailPage() {
       </div>
 
       {/* Comments */}
-      <CommentsSection marketId={market.id} />
+    <CommentsSection
+    ref={commentRef}
+    marketId={market.id}
+    selectedTimestamp={selectedTimestamp}
+    clearSelectedTimestamp={() => setSelectedTimestamp(null)}
+    onTimestampClick={(ts) => {
+        setSelectedTimestamp(ts); 
+        chartRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }}
+    />
+
     </div>
   );
 }
