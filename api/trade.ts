@@ -193,24 +193,39 @@ async function matchOrder(
 
       if (!canMatch) continue;
 
-      // Calculate how much we can fill
-      const fillAmount = Math.min(remainingAmount, oppositeOrder.remainingAmount);
-      const sharesTraded = fillAmount / 1.0; // Each share costs $1 total
-
       // Determine the execution price (maker's price determines the trade)
-      // The taker gets the maker's price, which may be better than their limit
       // YES + NO must always equal $1.00
+      // Example: Maker has NO at $0.45, Taker wants YES at $0.60 limit
+      //   executionYesPrice = 1 - 0.45 = $0.55 (taker pays less than limit!)
+      //   executionNoPrice = $0.45 (maker pays their price)
       const executionYesPrice = oppositeSide === 'NO'
         ? (1 - oppositeOrder.priceLimit)  // Derive YES from NO maker's price
         : oppositeOrder.priceLimit;        // Use YES maker's price directly
       const executionNoPrice = 1 - executionYesPrice;
+
+      // Taker gets the better price (derived from maker's price)
+      // Maker pays exactly what they asked for (their limit)
+      const takerExecutionPrice = orderRequest.side === 'YES' ? executionYesPrice : executionNoPrice;
+      const makerExecutionPrice = oppositeOrder.priceLimit;
+
+      // Calculate max shares each party can afford at their execution prices
+      const takerMaxShares = remainingAmount / takerExecutionPrice;
+      const makerMaxShares = oppositeOrder.remainingAmount / makerExecutionPrice;
+
+      // Trade the largest amount both parties can afford
+      // (the smaller of their two limits = the most we can trade where both can pay)
+      const sharesTraded = Math.min(takerMaxShares, makerMaxShares);
+
+      // Calculate actual costs for each party
+      const takerActualCost = sharesTraded * takerExecutionPrice;
+      const makerActualCost = sharesTraded * makerExecutionPrice;
 
       // Create trade record
       const tradeId = db.collection('trades').doc().id;
       const trade: Trade = {
         id: tradeId,
         marketId: orderRequest.marketId,
-        buyerOrderId: orderRequest.side === 'YES' ? '' : oppositeOrder.id, // Will update
+        buyerOrderId: orderRequest.side === 'YES' ? '' : oppositeOrder.id,
         sellerOrderId: orderRequest.side === 'YES' ? oppositeOrder.id : '',
         yesUserId: orderRequest.side === 'YES' ? userId : oppositeOrder.userId,
         noUserId: orderRequest.side === 'NO' ? userId : oppositeOrder.userId,
@@ -218,25 +233,25 @@ async function matchOrder(
         yesPrice: executionYesPrice,
         noPrice: executionNoPrice,
         sharesTraded,
-        totalAmount: fillAmount,
+        totalAmount: takerActualCost + makerActualCost, // Always equals $1.00 per share
         executedAt: now,
       };
 
       executedTrades.push(trade);
 
-      // Update opposite order
-      const newRemainingAmount = oppositeOrder.remainingAmount - fillAmount;
-      const newStatus = newRemainingAmount <= 0 ? 'filled' : 'partially_filled';
+      // Update maker's order - reduce by actual cost used from their reserved amount
+      const makerNewRemainingAmount = oppositeOrder.remainingAmount - makerActualCost;
+      const makerNewStatus = makerNewRemainingAmount <= 0.001 ? 'filled' : 'partially_filled';
 
       transaction.update(db.collection('orders').doc(oppositeOrder.id), {
-        remainingAmount: newRemainingAmount,
-        filledAmount: FieldValue.increment(fillAmount),
-        status: newStatus,
+        remainingAmount: Math.max(0, makerNewRemainingAmount),
+        filledAmount: FieldValue.increment(makerActualCost),
+        status: makerNewStatus,
         updatedAt: now,
-        filledAt: newStatus === 'filled' ? now : null,
+        filledAt: makerNewStatus === 'filled' ? now : null,
       });
 
-      // Update positions for opposite user
+      // Update maker's position with their actual cost
       const oppPositionId = `${oppositeOrder.userId}_${orderRequest.marketId}`;
       updateUserPositionWithCache(
         transaction,
@@ -246,10 +261,10 @@ async function matchOrder(
         orderRequest.marketId,
         oppositeSide,
         sharesTraded,
-        oppositeOrder.priceLimit * sharesTraded
+        makerActualCost
       );
 
-      // Update positions for this user
+      // Update taker's position with their actual cost (the better price!)
       updateUserPositionWithCache(
         transaction,
         positionsCache.get(userPositionId)!,
@@ -258,35 +273,34 @@ async function matchOrder(
         orderRequest.marketId,
         orderRequest.side,
         sharesTraded,
-        orderRequest.priceLimit * sharesTraded
+        takerActualCost
       );
 
-      // Deduct from user balance
+      // Deduct taker's actual cost (not their limit - they get the better price!)
       transaction.update(userRef, {
-        balance: FieldValue.increment(-orderRequest.priceLimit * sharesTraded),
+        balance: FieldValue.increment(-takerActualCost),
       });
 
-      // Deduct from opposite user balance (they already had it reserved)
-      const oppositeUserRef = db.collection('users').doc(oppositeOrder.userId);
-      transaction.update(oppositeUserRef, {
-        balance: FieldValue.increment(0), // Balance was already reserved
-      });
+      // Maker's balance was already reserved when they placed their order.
+      // Their remaining order amount is reduced above, which tracks how much
+      // of their reserved balance is still available for future matches.
 
       // Record trade
       transaction.set(db.collection('trades').doc(tradeId), trade);
 
-      // Update market stats (use normalized execution prices that sum to $1.00)
+      // Update market stats
       transaction.update(marketRef, {
         lastTradedPrice: {
           yes: executionYesPrice,
           no: executionNoPrice,
         },
-        totalVolume: FieldValue.increment(fillAmount),
+        totalVolume: FieldValue.increment(takerActualCost + makerActualCost),
         totalYesShares: FieldValue.increment(sharesTraded),
         totalNoShares: FieldValue.increment(sharesTraded),
       });
 
-      remainingAmount -= fillAmount;
+      // Reduce taker's remaining amount by what they actually spent
+      remainingAmount -= takerActualCost;
     }
 
     // 5. If there's remaining amount, create a maker order
