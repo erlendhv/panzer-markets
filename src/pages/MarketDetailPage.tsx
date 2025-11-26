@@ -6,6 +6,7 @@ import type { Market } from '../types/firestore';
 import { OrderBookDisplay } from '../components/market/OrderBookDisplay';
 import { PlaceOrderForm } from '../components/market/PlaceOrderForm';
 import { CommentsSection } from '../components/market/CommentsSection';
+import { MarketParticipants } from '../components/market/MarketParticipants';
 
 export function MarketDetailPage() {
   const { marketId } = useParams<{ marketId: string }>();
@@ -230,9 +231,10 @@ export function MarketDetailPage() {
           <PlaceOrderForm market={market} />
         </div>
 
-        {/* Order Book */}
-        <div>
+        {/* Order Book and Participants */}
+        <div className="space-y-6">
           <OrderBookDisplay marketId={market.id} />
+          <MarketParticipants marketId={market.id} />
         </div>
       </div>
 
