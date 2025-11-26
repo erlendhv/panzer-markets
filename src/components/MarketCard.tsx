@@ -26,11 +26,26 @@ export function MarketCard({ market }: MarketCardProps) {
   };
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
+    return new Date(timestamp).toLocaleDateString('nb-NO', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
     });
+  };
+
+  const getStatusLabel = (status: Market['status']) => {
+    switch (status) {
+      case 'open':
+        return 'åpen';
+      case 'closed':
+        return 'lukket';
+      case 'resolved':
+        return 'avgjort';
+      case 'proposed':
+        return 'foreslått';
+      default:
+        return status;
+    }
   };
 
   return (
@@ -43,7 +58,7 @@ export function MarketCard({ market }: MarketCardProps) {
           {market.question}
         </h3>
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(market.status)}`}>
-          {market.status}
+          {getStatusLabel(market.status)}
         </span>
       </div>
 
@@ -55,7 +70,7 @@ export function MarketCard({ market }: MarketCardProps) {
         <div className="flex items-center gap-4">
           <div className="flex-1">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium text-green-700">YES</span>
+              <span className="text-sm font-medium text-green-700">JA</span>
               <span className="text-lg font-bold text-green-700">{yesPercent}¢</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -68,7 +83,7 @@ export function MarketCard({ market }: MarketCardProps) {
 
           <div className="flex-1">
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium text-red-700">NO</span>
+              <span className="text-sm font-medium text-red-700">NEI</span>
               <span className="text-lg font-bold text-red-700">{noPercent}¢</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
@@ -82,10 +97,10 @@ export function MarketCard({ market }: MarketCardProps) {
 
         <div className="flex justify-between items-center text-sm text-gray-500 pt-2 border-t border-gray-100">
           <div>
-            <span className="font-medium">Volume:</span> ${market.totalVolume.toFixed(0)}
+            <span className="font-medium">Volum:</span> ${market.totalVolume.toFixed(0)}
           </div>
           <div>
-            <span className="font-medium">Resolves:</span> {formatDate(market.resolutionDate)}
+            <span className="font-medium">Avgjøres:</span> {formatDate(market.resolutionDate)}
           </div>
         </div>
       </div>

@@ -45,8 +45,8 @@ export function MarketDetailPage() {
   if (!market) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
-        <h2 className="text-xl font-bold text-red-900 mb-2">Market Not Found</h2>
-        <p className="text-red-700">This market does not exist or has been removed.</p>
+        <h2 className="text-xl font-bold text-red-900 mb-2">Bet ikke funnet</h2>
+        <p className="text-red-700">Denne beten eksisterer ikke eller har blitt fjernet.</p>
       </div>
     );
   }
@@ -57,13 +57,26 @@ export function MarketDetailPage() {
   const noPercent = 100 - yesPercent;
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('en-US', {
+    return new Date(timestamp).toLocaleString('nb-NO', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
       hour: 'numeric',
       minute: '2-digit',
     });
+  };
+
+  const getStatusLabel = (status: Market['status']) => {
+    switch (status) {
+      case 'open':
+        return 'åpen';
+      case 'closed':
+        return 'lukket';
+      case 'resolved':
+        return 'avgjort';
+      default:
+        return status;
+    }
   };
 
   const getStatusColor = (status: Market['status']) => {
@@ -91,25 +104,25 @@ export function MarketDetailPage() {
             )}
           </div>
           <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(market.status)}`}>
-            {market.status}
+            {getStatusLabel(market.status)}
           </span>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
           <div>
-            <div className="text-sm text-gray-500">Total Volume</div>
+            <div className="text-sm text-gray-500">Totalt volum</div>
             <div className="text-lg font-semibold text-gray-900">${market.totalVolume.toFixed(0)}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">Resolution Date</div>
+            <div className="text-sm text-gray-500">Avgjørelsesdato</div>
             <div className="text-lg font-semibold text-gray-900">{formatDate(market.resolutionDate)}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">YES Shares</div>
+            <div className="text-sm text-gray-500">JA-andeler</div>
             <div className="text-lg font-semibold text-green-600">{market.totalYesShares.toFixed(0)}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">NO Shares</div>
+            <div className="text-sm text-gray-500">NEI-andeler</div>
             <div className="text-lg font-semibold text-red-600">{market.totalNoShares.toFixed(0)}</div>
           </div>
         </div>
@@ -119,7 +132,7 @@ export function MarketDetailPage() {
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="bg-green-50 border border-green-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-green-700">YES</span>
+            <span className="text-sm font-medium text-green-700">JA</span>
             <span className="text-3xl font-bold text-green-700">{yesPercent}¢</span>
           </div>
           <div className="w-full bg-green-200 rounded-full h-3">
@@ -132,7 +145,7 @@ export function MarketDetailPage() {
 
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-red-700">NO</span>
+            <span className="text-sm font-medium text-red-700">NEI</span>
             <span className="text-3xl font-bold text-red-700">{noPercent}¢</span>
           </div>
           <div className="w-full bg-red-200 rounded-full h-3">

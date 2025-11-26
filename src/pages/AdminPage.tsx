@@ -14,24 +14,24 @@ export function AdminPage() {
   if (!user?.isAdmin) {
     return (
       <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
-        <h2 className="text-xl font-bold text-red-900 mb-2">Access Denied</h2>
-        <p className="text-red-700">You need admin privileges to access this page.</p>
+        <h2 className="text-xl font-bold text-red-900 mb-2">Ingen tilgang</h2>
+        <p className="text-red-700">Du trenger admin-rettigheter for å se denne siden.</p>
       </div>
     );
   }
 
   const tabs = [
-    { id: 'markets' as AdminTab, label: 'Create Market', icon: '📊' },
-    { id: 'resolve' as AdminTab, label: 'Resolve Markets', icon: '✓' },
-    { id: 'users' as AdminTab, label: 'Manage Users', icon: '👥' },
-    { id: 'proposals' as AdminTab, label: 'Review Proposals', icon: '📝' },
+    { id: 'markets' as AdminTab, label: 'Opprett bet', icon: '📊' },
+    { id: 'resolve' as AdminTab, label: 'Avgjør bets', icon: '✓' },
+    { id: 'users' as AdminTab, label: 'Administrer brukere', icon: '👥' },
+    { id: 'proposals' as AdminTab, label: 'Se forslag', icon: '📝' },
   ];
 
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600">Manage markets, users, and proposals</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin</h1>
+        <p className="text-gray-600">Administrer bets, brukere og forslag</p>
       </div>
 
       {/* Tabs */}

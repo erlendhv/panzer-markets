@@ -29,7 +29,7 @@ export function AuthButton() {
           onClick={signOut}
           className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
         >
-          Sign Out
+          Logg ut
         </button>
       </div>
     );
@@ -59,7 +59,7 @@ export function AuthButton() {
             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
           />
         </svg>
-        Sign in with Google
+        Logg inn med Google
       </button>
       {error && (
         <div className="mt-2 text-sm text-red-600">

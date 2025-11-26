@@ -58,8 +58,8 @@ export function UserManagement() {
   return (
     <div className="bg-white rounded-lg border border-gray-200">
       <div className="p-6 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-gray-900">User Management</h2>
-        <p className="text-sm text-gray-600 mt-1">Manage user balances and permissions</p>
+        <h2 className="text-xl font-bold text-gray-900">Brukeradministrasjon</h2>
+        <p className="text-sm text-gray-600 mt-1">Administrer brukersaldo og tillatelser</p>
       </div>
 
       <div className="overflow-x-auto">
@@ -67,19 +67,19 @@ export function UserManagement() {
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                User
+                Bruker
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Balance
+                Saldo
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Portfolio
+                Portefølje
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
+                Handlinger
               </th>
             </tr>
           </thead>
@@ -91,13 +91,13 @@ export function UserManagement() {
                     {user.photoURL && (
                       <img
                         src={user.photoURL}
-                        alt={user.displayName || 'User'}
+                        alt={user.displayName || 'Bruker'}
                         className="h-10 w-10 rounded-full mr-3"
                       />
                     )}
                     <div>
                       <div className="text-sm font-medium text-gray-900">
-                        {user.displayName || 'Unknown'}
+                        {user.displayName || 'Ukjent'}
                       </div>
                       <div className="text-sm text-gray-500">{user.email}</div>
                     </div>
@@ -118,7 +118,7 @@ export function UserManagement() {
                     </span>
                   ) : (
                     <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                      User
+                      Bruker
                     </span>
                   )}
                 </td>
@@ -128,7 +128,7 @@ export function UserManagement() {
                       onClick={() => adjustBalance(user.uid, 100)}
                       disabled={adjustingBalance === user.uid}
                       className="text-green-600 hover:text-green-900 disabled:opacity-50"
-                      title="Add $100"
+                      title="Legg til $100"
                     >
                       +$100
                     </button>
@@ -136,14 +136,14 @@ export function UserManagement() {
                       onClick={() => adjustBalance(user.uid, -100)}
                       disabled={adjustingBalance === user.uid}
                       className="text-red-600 hover:text-red-900 disabled:opacity-50"
-                      title="Subtract $100"
+                      title="Trekk fra $100"
                     >
                       -$100
                     </button>
                     <button
                       onClick={() => toggleAdmin(user.uid, user.isAdmin)}
                       className="ml-2 text-blue-600 hover:text-blue-900"
-                      title={user.isAdmin ? 'Remove admin' : 'Make admin'}
+                      title={user.isAdmin ? 'Fjern admin' : 'Gjør til admin'}
                     >
                       {user.isAdmin ? '👤' : '👑'}
                     </button>
@@ -157,7 +157,7 @@ export function UserManagement() {
 
       {users.length === 0 && (
         <div className="p-12 text-center">
-          <p className="text-gray-600">No users found</p>
+          <p className="text-gray-600">Ingen brukere funnet</p>
         </div>
       )}
     </div>

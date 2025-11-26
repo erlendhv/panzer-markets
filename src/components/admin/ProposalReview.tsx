@@ -93,7 +93,7 @@ export function ProposalReview() {
   };
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleString('en-US', {
+    return new Date(timestamp).toLocaleString('nb-NO', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -113,7 +113,7 @@ export function ProposalReview() {
   if (proposals.length === 0) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <p className="text-gray-600">No pending proposals</p>
+        <p className="text-gray-600">Ingen ventende forslag</p>
       </div>
     );
   }
@@ -156,10 +156,10 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
         )}
         <div className="flex items-center gap-6 text-sm text-gray-500">
           <div>
-            <span className="font-medium">Suggested Resolution:</span> {formatDate(proposal.suggestedResolutionDate)}
+            <span className="font-medium">Foreslått avgjørelse:</span> {formatDate(proposal.suggestedResolutionDate)}
           </div>
           <div>
-            <span className="font-medium">Proposed:</span> {formatDate(proposal.createdAt)}
+            <span className="font-medium">Foreslått:</span> {formatDate(proposal.createdAt)}
           </div>
         </div>
       </div>
@@ -168,7 +168,7 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
         <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
           <div className="flex-1">
             <label htmlFor={`price-${proposal.id}`} className="block text-sm font-medium text-gray-700 mb-1">
-              Initial YES Price
+              Startpris JA
             </label>
             <input
               id={`price-${proposal.id}`}
@@ -188,28 +188,28 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
               disabled={processing}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 text-sm font-medium"
             >
-              {processing ? 'Processing...' : 'Approve'}
+              {processing ? 'Behandler...' : 'Godkjenn'}
             </button>
             <button
               onClick={() => setShowRejectForm(true)}
               disabled={processing}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 text-sm font-medium"
             >
-              Reject
+              Avslå
             </button>
           </div>
         </div>
       ) : (
         <div className="pt-4 border-t border-gray-200">
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Rejection Reason
+            Årsak til avslag
           </label>
           <textarea
             value={rejectionReason}
             onChange={(e) => setRejectionReason(e.target.value)}
             rows={2}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-2"
-            placeholder="Explain why this proposal is being rejected..."
+            placeholder="Forklar hvorfor dette forslaget blir avslått..."
           />
           <div className="flex gap-2">
             <button
@@ -221,7 +221,7 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
               disabled={processing || !rejectionReason}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 text-sm font-medium"
             >
-              {processing ? 'Processing...' : 'Confirm Rejection'}
+              {processing ? 'Behandler...' : 'Bekreft avslag'}
             </button>
             <button
               onClick={() => {
@@ -231,7 +231,7 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
               disabled={processing}
               className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium"
             >
-              Cancel
+              Avbryt
             </button>
           </div>
         </div>

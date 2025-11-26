@@ -7,9 +7,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
 
   const navigation = [
-    { name: 'Markets', href: '/' },
-    { name: 'Portfolio', href: '/portfolio' },
-    { name: 'Propose Market', href: '/propose' },
+    { name: 'Bets', href: '/' },
+    { name: 'Dine bets', href: '/portfolio' },
+    { name: 'Foreslå bet', href: '/propose' },
   ];
 
   if (user?.isAdmin) {

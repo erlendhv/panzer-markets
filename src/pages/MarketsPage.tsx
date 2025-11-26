@@ -10,10 +10,10 @@ export function MarketsPage() {
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          Welcome to Panzer Markets
+          Velkommen til Panzer Markets
         </h2>
         <p className="text-gray-600 mb-8">
-          Sign in with Google to start trading on prediction markets
+          Logg inn for å begynne å bette
         </p>
       </div>
     );
@@ -38,9 +38,9 @@ export function MarketsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Active Markets</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">Aktive bets</h1>
         <p className="text-gray-600">
-          Trade on prediction markets with your friends using virtual currency
+          Bett mot Panzere
         </p>
       </div>
 
@@ -61,9 +61,9 @@ export function MarketsPage() {
               />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No active markets</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Ingen aktive bets</h3>
           <p className="text-gray-600">
-            Be the first to propose a market and get it approved!
+            Vær den første til å foreslå en bet og få den godkjent!
           </p>
         </div>
       ) : (

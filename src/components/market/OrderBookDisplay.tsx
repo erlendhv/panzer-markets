@@ -10,7 +10,7 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
   if (loading) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Order Book</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-4">Ordrebok</h3>
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -22,23 +22,23 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">Order Book</h3>
+      <h3 className="text-lg font-bold text-gray-900 mb-4">Ordrebok</h3>
 
       {!hasOrders ? (
         <div className="text-center py-8">
-          <p className="text-sm text-gray-500">No open orders</p>
-          <p className="text-xs text-gray-400 mt-1">Be the first to place an order!</p>
+          <p className="text-sm text-gray-500">Ingen åpne ordre</p>
+          <p className="text-xs text-gray-400 mt-1">Vær den første til å legge inn en ordre!</p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* YES Orders */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-green-700">YES Orders</span>
-              <span className="text-xs text-gray-500">{orderBook.yes.length} levels</span>
+              <span className="text-sm font-medium text-green-700">JA-ordre</span>
+              <span className="text-xs text-gray-500">{orderBook.yes.length} nivåer</span>
             </div>
             {orderBook.yes.length === 0 ? (
-              <div className="text-sm text-gray-400 italic">No YES orders</div>
+              <div className="text-sm text-gray-400 italic">Ingen JA-ordre</div>
             ) : (
               <div className="space-y-1">
                 {orderBook.yes.slice(0, 5).map((entry, idx) => (
@@ -56,7 +56,7 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
                 ))}
                 {orderBook.yes.length > 5 && (
                   <div className="text-xs text-gray-400 text-center pt-1">
-                    +{orderBook.yes.length - 5} more levels
+                    +{orderBook.yes.length - 5} flere nivåer
                   </div>
                 )}
               </div>
@@ -66,11 +66,11 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
           {/* NO Orders */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-red-700">NO Orders</span>
-              <span className="text-xs text-gray-500">{orderBook.no.length} levels</span>
+              <span className="text-sm font-medium text-red-700">NEI-ordre</span>
+              <span className="text-xs text-gray-500">{orderBook.no.length} nivåer</span>
             </div>
             {orderBook.no.length === 0 ? (
-              <div className="text-sm text-gray-400 italic">No NO orders</div>
+              <div className="text-sm text-gray-400 italic">Ingen NEI-ordre</div>
             ) : (
               <div className="space-y-1">
                 {orderBook.no.slice(0, 5).map((entry, idx) => (
@@ -88,7 +88,7 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
                 ))}
                 {orderBook.no.length > 5 && (
                   <div className="text-xs text-gray-400 text-center pt-1">
-                    +{orderBook.no.length - 5} more levels
+                    +{orderBook.no.length - 5} flere nivåer
                   </div>
                 )}
               </div>
@@ -100,8 +100,8 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
       {/* Legend */}
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="flex items-center justify-between text-xs text-gray-500">
-          <span>Price</span>
-          <span>Amount</span>
+          <span>Pris</span>
+          <span>Beløp</span>
         </div>
       </div>
     </div>

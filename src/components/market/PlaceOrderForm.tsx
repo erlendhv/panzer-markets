@@ -30,7 +30,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
   if (!user) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <p className="text-gray-600 text-center">Sign in to place orders</p>
+        <p className="text-gray-600 text-center">Logg inn for å legge inn ordre</p>
       </div>
     );
   }
@@ -38,7 +38,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
   if (market.status !== 'open') {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <p className="text-gray-600 text-center">This market is {market.status}</p>
+        <p className="text-gray-600 text-center">Denne beten er {market.status === 'closed' ? 'lukket' : market.status === 'resolved' ? 'avgjort' : market.status}</p>
       </div>
     );
   }
@@ -54,15 +54,15 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
       const amountNum = parseFloat(amount);
 
       if (price <= 0 || price >= 1) {
-        throw new Error('Price must be between 0 and 1');
+        throw new Error('Pris må være mellom 0 og 1');
       }
 
       if (amountNum < 1) {
-        throw new Error('Minimum order amount is $1');
+        throw new Error('Minimumsbeløp er $1');
       }
 
       if (amountNum > user.balance) {
-        throw new Error('Insufficient balance');
+        throw new Error('Utilstrekkelig saldo');
       }
 
       const result = await placeOrder({
@@ -76,8 +76,8 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
         const tradesExecuted = result.trades?.length || 0;
         setSuccess(
           tradesExecuted > 0
-            ? `Order placed! ${tradesExecuted} trade(s) executed.`
-            : 'Order placed and added to order book!'
+            ? `Ordre lagt inn! ${tradesExecuted} handel(er) utført.`
+            : 'Ordre lagt inn og lagt til i ordreboken!'
         );
         setAmount('10');
         setTimeout(() => setSuccess(null), 5000);
@@ -95,13 +95,13 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Place Order</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Legg inn ordre</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Side Selection */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Which outcome do you believe?
+            Hvilket utfall tror du på?
           </label>
           <div className="grid grid-cols-2 gap-4">
             <button
@@ -114,7 +114,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
               }`}
             >
               <div className="text-2xl mb-1">✓</div>
-              <div>YES</div>
+              <div>JA</div>
             </button>
             <button
               type="button"
@@ -126,7 +126,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
               }`}
             >
               <div className="text-2xl mb-1">✗</div>
-              <div>NO</div>
+              <div>NEI</div>
             </button>
           </div>
         </div>
@@ -134,7 +134,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
         {/* Price Limit */}
         <div>
           <label htmlFor="priceLimit" className="block text-sm font-medium text-gray-700 mb-2">
-            Max Price per Share (0-1)
+            Makspris per andel (0-1)
           </label>
           <input
             type="number"
@@ -148,15 +148,15 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
             required
           />
           <p className="mt-1 text-sm text-gray-500">
-            You're willing to pay up to ${priceLimit} per {side} share.
-            This means you need a {side === 'YES' ? 'NO' : 'YES'} buyer at ${oppositePrice} or more to match.
+            Du er villig til å betale opptil ${priceLimit} per {side === 'YES' ? 'JA' : 'NEI'}-andel.
+            Dette betyr at du trenger en {side === 'YES' ? 'NEI' : 'JA'}-kjøper til ${oppositePrice} eller mer for å matche.
           </p>
         </div>
 
         {/* Amount */}
         <div>
           <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
-            Amount (USD)
+            Beløp (USD)
           </label>
           <input
             type="number"
@@ -170,18 +170,18 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
             required
           />
           <p className="mt-1 text-sm text-gray-500">
-            Available balance: ${user.balance.toFixed(2)}
+            Tilgjengelig saldo: ${user.balance.toFixed(2)}
           </p>
         </div>
 
         {/* Estimated Shares */}
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-sm text-blue-900 mb-1">Estimated shares if filled:</div>
+          <div className="text-sm text-blue-900 mb-1">Estimerte andeler hvis fylt:</div>
           <div className="text-2xl font-bold text-blue-900">
-            {estimatedShares.toFixed(2)} {side} shares
+            {estimatedShares.toFixed(2)} {side === 'YES' ? 'JA' : 'NEI'}-andeler
           </div>
           <div className="text-sm text-blue-700 mt-2">
-            Potential profit if {side} wins: ${(estimatedShares - parseFloat(amount)).toFixed(2)}
+            Potensiell gevinst hvis {side === 'YES' ? 'JA' : 'NEI'} vinner: ${(estimatedShares - parseFloat(amount)).toFixed(2)}
           </div>
         </div>
 
@@ -208,7 +208,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
               : 'bg-red-600 hover:bg-red-700 text-white'
           } disabled:bg-gray-400 disabled:cursor-not-allowed`}
         >
-          {loading ? 'Placing Order...' : `Buy ${side} Shares`}
+          {loading ? 'Legger inn ordre...' : `Kjøp ${side === 'YES' ? 'JA' : 'NEI'}-andeler`}
         </button>
       </form>
     </div>

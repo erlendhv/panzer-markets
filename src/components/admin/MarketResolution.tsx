@@ -19,7 +19,7 @@ export function MarketResolution() {
   const handleResolve = async (market: Market) => {
     const outcome = selectedOutcome[market.id];
     if (!outcome) {
-      setError('Please select an outcome');
+      setError('Vennligst velg et utfall');
       return;
     }
 
@@ -33,7 +33,7 @@ export function MarketResolution() {
         outcome,
         note: notes[market.id] || undefined,
       });
-      setSuccess(`Market resolved as ${outcome}!`);
+      setSuccess(`Bet avgjort som ${outcome}!`);
       setTimeout(() => setSuccess(null), 5000);
     } catch (err: any) {
       setError(err.message || 'Failed to resolve market');
@@ -43,11 +43,22 @@ export function MarketResolution() {
   };
 
   const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString('en-US', {
+    return new Date(timestamp).toLocaleDateString('nb-NO', {
       month: 'short',
       day: 'numeric',
       year: 'numeric',
     });
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'open':
+        return 'åpen';
+      case 'closed':
+        return 'lukket';
+      default:
+        return status;
+    }
   };
 
   const isPastResolutionDate = (timestamp: number) => {
@@ -64,7 +75,7 @@ export function MarketResolution() {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Resolve Markets</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Avgjør bets</h2>
 
       {error && (
         <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
@@ -79,7 +90,7 @@ export function MarketResolution() {
       )}
 
       {resolvableMarkets.length === 0 ? (
-        <p className="text-gray-600 text-center py-8">No markets to resolve</p>
+        <p className="text-gray-600 text-center py-8">Ingen bets å avgjøre</p>
       ) : (
         <div className="space-y-6">
           {resolvableMarkets.map((market) => (
@@ -106,11 +117,11 @@ export function MarketResolution() {
                         : 'bg-yellow-100 text-yellow-800'
                     }`}
                   >
-                    {market.status}
+                    {getStatusLabel(market.status)}
                   </span>
                   {isPastResolutionDate(market.resolutionDate) && (
                     <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                      Past due
+                      Forfalt
                     </span>
                   )}
                 </div>
@@ -118,21 +129,21 @@ export function MarketResolution() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                 <div>
-                  <span className="text-gray-500">Resolution Date:</span>
+                  <span className="text-gray-500">Avgjørelsesdato:</span>
                   <div className="font-medium">{formatDate(market.resolutionDate)}</div>
                 </div>
                 <div>
-                  <span className="text-gray-500">Volume:</span>
+                  <span className="text-gray-500">Volum:</span>
                   <div className="font-medium">${market.totalVolume.toFixed(0)}</div>
                 </div>
                 <div>
-                  <span className="text-gray-500">YES Price:</span>
+                  <span className="text-gray-500">JA-pris:</span>
                   <div className="font-medium text-green-600">
                     {Math.round(market.lastTradedPrice.yes * 100)}¢
                   </div>
                 </div>
                 <div>
-                  <span className="text-gray-500">NO Price:</span>
+                  <span className="text-gray-500">NEI-pris:</span>
                   <div className="font-medium text-red-600">
                     {Math.round((1 - market.lastTradedPrice.yes) * 100)}¢
                   </div>
@@ -151,7 +162,7 @@ export function MarketResolution() {
                         : 'bg-green-100 text-green-700 hover:bg-green-200'
                     }`}
                   >
-                    YES
+                    JA
                   </button>
                   <button
                     onClick={() =>
@@ -163,7 +174,7 @@ export function MarketResolution() {
                         : 'bg-red-100 text-red-700 hover:bg-red-200'
                     }`}
                   >
-                    NO
+                    NEI
                   </button>
                   <button
                     onClick={() =>
@@ -175,13 +186,13 @@ export function MarketResolution() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    INVALID
+                    UGYLDIG
                   </button>
                 </div>
 
                 <input
                   type="text"
-                  placeholder="Resolution note (optional)"
+                  placeholder="Notat (valgfritt)"
                   value={notes[market.id] || ''}
                   onChange={(e) => setNotes({ ...notes, [market.id]: e.target.value })}
                   className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -192,7 +203,7 @@ export function MarketResolution() {
                   disabled={!selectedOutcome[market.id] || resolvingId === market.id}
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
-                  {resolvingId === market.id ? 'Resolving...' : 'Resolve Market'}
+                  {resolvingId === market.id ? 'Avgjør...' : 'Avgjør bet'}
                 </button>
               </div>
             </div>

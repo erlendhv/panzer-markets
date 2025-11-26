@@ -41,8 +41,8 @@ export function PortfolioPage() {
   if (!user) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Sign In Required</h2>
-        <p className="text-gray-600">Please sign in to view your portfolio.</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Innlogging kreves</h2>
+        <p className="text-gray-600">Logg inn for å se dine bets.</p>
       </div>
     );
   }
@@ -77,24 +77,24 @@ export function PortfolioPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">My Portfolio</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">Dine bets</h1>
 
         {/* Portfolio Summary */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Cash Balance</div>
+            <div className="text-sm text-gray-500">Saldo</div>
             <div className="text-2xl font-bold text-gray-900">${user.balance.toFixed(2)}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Position Value</div>
+            <div className="text-sm text-gray-500">Posisjonsverdi</div>
             <div className="text-2xl font-bold text-gray-900">${totalValue.toFixed(2)}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Total Value</div>
+            <div className="text-sm text-gray-500">Total verdi</div>
             <div className="text-2xl font-bold text-gray-900">${(user.balance + totalValue).toFixed(2)}</div>
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Unrealized P&L</div>
+            <div className="text-sm text-gray-500">Urealisert gevinst/tap</div>
             <div className={`text-2xl font-bold ${unrealizedPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
               {unrealizedPnL >= 0 ? '+' : ''}${unrealizedPnL.toFixed(2)}
             </div>
@@ -113,7 +113,7 @@ export function PortfolioPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Positions ({positions.length})
+            Posisjoner ({positions.length})
           </button>
           <button
             onClick={() => setActiveTab('orders')}
@@ -123,7 +123,7 @@ export function PortfolioPage() {
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Orders ({openOrders.length} open)
+            Ordre ({openOrders.length} åpne)
           </button>
         </nav>
       </div>
@@ -165,7 +165,7 @@ function PositionsView({ positions, markets, loading }: PositionsViewProps) {
   if (positions.length === 0) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <p className="text-gray-600">No positions yet. Start trading to build your portfolio!</p>
+        <p className="text-gray-600">Ingen posisjoner ennå. Begynn å bette for å bygge opp porteføljen din!</p>
       </div>
     );
   }
@@ -199,25 +199,25 @@ function PositionsView({ positions, markets, loading }: PositionsViewProps) {
 
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
               <div>
-                <div className="text-gray-500">YES Shares</div>
+                <div className="text-gray-500">JA-andeler</div>
                 <div className="font-semibold text-green-700">{position.yesShares.toFixed(2)}</div>
-                <div className="text-xs text-gray-500">${yesValue.toFixed(2)} value</div>
+                <div className="text-xs text-gray-500">${yesValue.toFixed(2)} verdi</div>
               </div>
               <div>
-                <div className="text-gray-500">NO Shares</div>
+                <div className="text-gray-500">NEI-andeler</div>
                 <div className="font-semibold text-red-700">{position.noShares.toFixed(2)}</div>
-                <div className="text-xs text-gray-500">${noValue.toFixed(2)} value</div>
+                <div className="text-xs text-gray-500">${noValue.toFixed(2)} verdi</div>
               </div>
               <div>
-                <div className="text-gray-500">Total Cost</div>
+                <div className="text-gray-500">Total kostnad</div>
                 <div className="font-semibold text-gray-900">${totalCost.toFixed(2)}</div>
               </div>
               <div>
-                <div className="text-gray-500">Current Value</div>
+                <div className="text-gray-500">Nåværende verdi</div>
                 <div className="font-semibold text-gray-900">${totalValue.toFixed(2)}</div>
               </div>
               <div>
-                <div className="text-gray-500">P&L</div>
+                <div className="text-gray-500">Gevinst/tap</div>
                 <div className={`font-semibold ${pnl >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}
                 </div>
@@ -262,7 +262,7 @@ function OrdersView({ openOrders, closedOrders, markets, loading, onCancelOrder,
               !showClosed ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
             }`}
           >
-            Open Orders ({openOrders.length})
+            Åpne ordre ({openOrders.length})
           </button>
           <button
             onClick={() => setShowClosed(true)}
@@ -270,14 +270,14 @@ function OrdersView({ openOrders, closedOrders, markets, loading, onCancelOrder,
               showClosed ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'
             }`}
           >
-            History ({closedOrders.length})
+            Historikk ({closedOrders.length})
           </button>
         </div>
       </div>
 
       {ordersToShow.length === 0 ? (
         <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <p className="text-gray-600">No {showClosed ? 'closed' : 'open'} orders</p>
+          <p className="text-gray-600">Ingen {showClosed ? 'lukkede' : 'åpne'} ordre</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -318,7 +318,7 @@ function OrdersView({ openOrders, closedOrders, markets, loading, onCancelOrder,
                       disabled={cancellingOrderId === order.id}
                       className="ml-4 px-3 py-1 text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
                     >
-                      {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
+                      {cancellingOrderId === order.id ? 'Kansellerer...' : 'Kanseller'}
                     </button>
                   )}
                 </div>

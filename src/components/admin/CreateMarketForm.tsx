@@ -30,7 +30,7 @@ export function CreateMarketForm() {
       const yesPrice = parseFloat(formData.initialYesPrice);
 
       if (yesPrice <= 0 || yesPrice >= 1) {
-        throw new Error('Initial YES price must be between 0 and 1');
+        throw new Error('Startpris for JA må være mellom 0 og 1');
       }
 
       const newMarket: Omit<Market, 'id'> = {
@@ -80,13 +80,13 @@ export function CreateMarketForm() {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Create New Market</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-6">Opprett ny bet</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Question */}
         <div>
           <label htmlFor="question" className="block text-sm font-medium text-gray-700 mb-2">
-            Question
+            Spørsmål
           </label>
           <input
             type="text"
@@ -95,7 +95,7 @@ export function CreateMarketForm() {
             required
             value={formData.question}
             onChange={handleChange}
-            placeholder="Will Bitcoin reach $100k by end of 2024?"
+            placeholder="Vil Linn Emilie bli forlovet innen 2026?"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -103,7 +103,7 @@ export function CreateMarketForm() {
         {/* Description */}
         <div>
           <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-            Description
+            Beskrivelse
           </label>
           <textarea
             id="description"
@@ -111,7 +111,7 @@ export function CreateMarketForm() {
             rows={3}
             value={formData.description}
             onChange={handleChange}
-            placeholder="Additional details about the market and resolution criteria..."
+            placeholder="Flere detaljer om beten og avgjørelseskriterier..."
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
@@ -119,7 +119,7 @@ export function CreateMarketForm() {
         {/* Resolution Date */}
         <div>
           <label htmlFor="resolutionDate" className="block text-sm font-medium text-gray-700 mb-2">
-            Resolution Date
+            Avgjørelsesdato
           </label>
           <input
             type="datetime-local"
@@ -135,7 +135,7 @@ export function CreateMarketForm() {
         {/* Initial Price */}
         <div>
           <label htmlFor="initialYesPrice" className="block text-sm font-medium text-gray-700 mb-2">
-            Initial YES Price (0-1)
+            Startpris JA (0-1)
           </label>
           <input
             type="number"
@@ -150,7 +150,7 @@ export function CreateMarketForm() {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <p className="mt-1 text-sm text-gray-500">
-            NO price will be {(1 - parseFloat(formData.initialYesPrice || '0.5')).toFixed(2)}
+            NEI-pris blir {(1 - parseFloat(formData.initialYesPrice || '0.5')).toFixed(2)}
           </p>
         </div>
 
@@ -164,7 +164,7 @@ export function CreateMarketForm() {
         {/* Success Message */}
         {success && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <p className="text-sm text-green-800">Market created successfully!</p>
+            <p className="text-sm text-green-800">Bet opprettet!</p>
           </div>
         )}
 
@@ -174,17 +174,17 @@ export function CreateMarketForm() {
           disabled={loading}
           className="w-full px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
         >
-          {loading ? 'Creating...' : 'Create Market'}
+          {loading ? 'Oppretter...' : 'Opprett bet'}
         </button>
       </form>
 
       {/* Info Box */}
       <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">About Initial Pricing</h3>
+        <h3 className="text-sm font-medium text-blue-900 mb-2">Om startprising</h3>
         <p className="text-sm text-blue-700">
-          The initial price sets the starting odds. For example, 0.50 means 50/50 odds.
-          Users can place orders at any price, and the matching engine will execute trades
-          when YES + NO prices = $1.00.
+          Startprisen setter startoddsene. For eksempel betyr 0.50 50/50 odds.
+          Brukere kan legge inn ordre på hvilken som helst pris, og systemet vil utføre handler
+          når JA + NEI priser = $1.00.
         </p>
       </div>
     </div>
