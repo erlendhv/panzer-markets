@@ -138,7 +138,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
           />
           <p className="mt-1 text-sm text-gray-500">
             You're willing to pay up to ${priceLimit} per {side} share.
-            This means you need a {side === 'YES' ? 'NO' : 'YES'} buyer at ${oppositePrice} or less to match.
+            This means you need a {side === 'YES' ? 'NO' : 'YES'} buyer at ${oppositePrice} or more to match.
           </p>
         </div>
 

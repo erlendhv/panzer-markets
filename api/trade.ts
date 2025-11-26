@@ -5,7 +5,7 @@
  * It uses Firestore transactions to prevent race conditions when matching orders.
  *
  * Key Concept: YES price + NO price must equal $1.00
- * When a user wants to buy YES at $0.60, we look for a NO order at $0.40 or less.
+ * When a user wants to buy YES at $0.60, we look for a NO order at $0.40 or more (so total >= $1.00).
  */
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
@@ -146,14 +146,14 @@ async function matchOrder(
     const oppositeSide: OrderSide = orderRequest.side === 'YES' ? 'NO' : 'YES';
     const complementPrice = 1 - orderRequest.priceLimit;
 
-    // For matching: if buying YES at 0.60, we need NO at 0.40 or less
-    // For matching: if buying NO at 0.40, we need YES at 0.60 or less
+    // For matching: if buying YES at 0.60, we need NO at 0.40 or more (sum >= $1.00)
+    // For matching: if buying NO at 0.40, we need YES at 0.60 or more (sum >= $1.00)
     const oppositeOrdersQuery = db.collection('orders')
       .where('marketId', '==', orderRequest.marketId)
       .where('side', '==', oppositeSide)
       .where('status', '==', 'open')
-      .where('priceLimit', '<=', complementPrice)
-      .orderBy('priceLimit', 'asc') // Best prices first (lowest for matching)
+      .where('priceLimit', '>=', complementPrice)
+      .orderBy('priceLimit', 'desc') // Best prices first (highest willingness to pay)
       .orderBy('createdAt', 'asc'); // FIFO for same price
 
     const oppositeOrdersSnapshot = await transaction.get(oppositeOrdersQuery);
