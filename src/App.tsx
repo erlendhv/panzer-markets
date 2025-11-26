@@ -5,6 +5,7 @@ import { MarketDetailPage } from './pages/MarketDetailPage'
 import { PortfolioPage } from './pages/PortfolioPage'
 import { ProposePage } from './pages/ProposePage'
 import { AdminPage } from './pages/AdminPage'
+import { ResolvedPage } from './pages/ResolvedPage'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/portfolio" element={<PortfolioPage />} />
           <Route path="/propose" element={<ProposePage />} />
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/resolved" element={<ResolvedPage />} />
         </Routes>
       </Layout>
     </Router>

@@ -77,6 +77,7 @@ async function resolveMarket(request: ResolveMarketRequest): Promise<ResolveMark
   const { marketId, outcome, note } = request;
 
   return await db.runTransaction(async (transaction) => {
+    // === ALL READS FIRST ===
     // Get market
     const marketRef = db.collection('markets').doc(marketId);
     const marketDoc = await transaction.get(marketRef);
@@ -100,6 +101,14 @@ async function resolveMarket(request: ResolveMarketRequest): Promise<ResolveMark
       db.collection('positions').where('marketId', '==', marketId)
     );
 
+    // Get all open orders for this market (must read before any writes)
+    const openOrdersSnapshot = await transaction.get(
+      db.collection('orders')
+        .where('marketId', '==', marketId)
+        .where('status', 'in', ['open', 'partially_filled'])
+    );
+
+    // === ALL WRITES AFTER ===
     const payouts: { userId: string; amount: number }[] = [];
     const now = Date.now();
 
@@ -140,13 +149,7 @@ async function resolveMarket(request: ResolveMarketRequest): Promise<ResolveMark
       }
     }
 
-    // Cancel all open orders for this market
-    const openOrdersSnapshot = await transaction.get(
-      db.collection('orders')
-        .where('marketId', '==', marketId)
-        .where('status', 'in', ['open', 'partially_filled'])
-    );
-
+    // Cancel all open orders and refund remaining amounts
     for (const orderDoc of openOrdersSnapshot.docs) {
       const order = orderDoc.data() as any;
       if (order.remainingAmount > 0) {

@@ -91,6 +91,45 @@ export function MarketDetailPage() {
     }
   };
 
+  const getOutcomeLabel = (outcome: Market['resolutionOutcome']) => {
+    switch (outcome) {
+      case 'YES':
+        return 'JA';
+      case 'NO':
+        return 'NEI';
+      case 'INVALID':
+        return 'Ugyldig';
+      default:
+        return '-';
+    }
+  };
+
+  const getOutcomeBanner = (outcome: Market['resolutionOutcome']) => {
+    switch (outcome) {
+      case 'YES':
+        return 'bg-green-100 border-green-400';
+      case 'NO':
+        return 'bg-red-100 border-red-400';
+      case 'INVALID':
+        return 'bg-gray-100 border-gray-400';
+      default:
+        return 'bg-gray-100 border-gray-400';
+    }
+  };
+
+  const getOutcomeTextColor = (outcome: Market['resolutionOutcome']) => {
+    switch (outcome) {
+      case 'YES':
+        return 'text-green-800';
+      case 'NO':
+        return 'text-red-800';
+      case 'INVALID':
+        return 'text-gray-800';
+      default:
+        return 'text-gray-800';
+    }
+  };
+
   return (
     <div>
       {/* Market Header */}
@@ -126,6 +165,34 @@ export function MarketDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Resolution Outcome Banner */}
+      {market.status === 'resolved' && market.resolutionOutcome && (
+        <div className={`rounded-lg border-2 p-6 mb-6 ${getOutcomeBanner(market.resolutionOutcome)}`}>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className={`text-sm font-medium ${getOutcomeTextColor(market.resolutionOutcome)} opacity-75`}>
+                Utfall
+              </div>
+              <div className={`text-3xl font-bold ${getOutcomeTextColor(market.resolutionOutcome)}`}>
+                {getOutcomeLabel(market.resolutionOutcome)}
+              </div>
+            </div>
+            <div className="text-right">
+              {market.resolvedAt && (
+                <div className={`text-sm ${getOutcomeTextColor(market.resolutionOutcome)} opacity-75`}>
+                  Avgjort {formatDate(market.resolvedAt)}
+                </div>
+              )}
+              {market.resolutionNote && (
+                <div className={`text-sm ${getOutcomeTextColor(market.resolutionOutcome)} mt-1`}>
+                  {market.resolutionNote}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Price Display */}
       <div className="grid grid-cols-2 gap-4 mb-6">

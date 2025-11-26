@@ -8,6 +8,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   const navigation = [
     { name: 'Bets', href: '/' },
+    { name: 'Avgjort', href: '/resolved' },
     { name: 'Dine bets', href: '/portfolio' },
     { name: 'Foreslå bet', href: '/propose' },
   ];
