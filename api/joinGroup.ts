@@ -80,8 +80,13 @@ async function joinGroup(
 
     const groupData = groupDoc.data() as Group;
 
-    // Check if the group is open
-    if (!groupData.isOpen) {
+    // Check if user is a site admin
+    const userRef = db.collection('users').doc(userId);
+    const userDoc = await transaction.get(userRef);
+    const isSiteAdmin = userDoc.exists && userDoc.data()?.isAdmin === true;
+
+    // Check if the group is open or user is a site admin
+    if (!groupData.isOpen && !isSiteAdmin) {
       throw new Error('This group requires approval to join');
     }
 
