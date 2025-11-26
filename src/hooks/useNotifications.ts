@@ -1,15 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { Position, Market, GroupJoinRequest, Group } from '../types/firestore';
+import type { Position, Market, GroupJoinRequest, Group, GroupMember, User } from '../types/firestore';
 
 export interface Notification {
   id: string;
-  type: 'bet_won' | 'bet_lost' | 'bet_invalid' | 'group_accepted' | 'group_rejected';
+  type: 'bet_won' | 'bet_lost' | 'bet_invalid' | 'group_accepted' | 'group_rejected' | 'join_request';
   title: string;
   message: string;
   timestamp: number;
   read: boolean;
+  groupId?: string; // For join_request notifications
 }
 
 export function useNotifications(userId: string | undefined) {
@@ -18,6 +19,11 @@ export function useNotifications(userId: string | undefined) {
   const [groupRequests, setGroupRequests] = useState<GroupJoinRequest[]>([]);
   const [groups, setGroups] = useState<Map<string, Group>>(new Map());
   const [loading, setLoading] = useState(true);
+
+  // Admin notification state
+  const [adminMemberships, setAdminMemberships] = useState<GroupMember[]>([]);
+  const [pendingJoinRequests, setPendingJoinRequests] = useState<GroupJoinRequest[]>([]);
+  const [requesters, setRequesters] = useState<Map<string, User>>(new Map());
 
   // Fetch user's positions
   useEffect(() => {
@@ -129,6 +135,109 @@ export function useNotifications(userId: string | undefined) {
     });
   }, [groupRequests]);
 
+  // Fetch groups where user is admin (for join request notifications)
+  useEffect(() => {
+    if (!userId) {
+      setAdminMemberships([]);
+      return;
+    }
+
+    const q = query(
+      collection(db, 'groupMembers'),
+      where('userId', '==', userId),
+      where('role', '==', 'admin')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const memberships = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      })) as GroupMember[];
+      setAdminMemberships(memberships);
+    });
+
+    return unsubscribe;
+  }, [userId]);
+
+  // Fetch pending join requests for groups the user admins
+  useEffect(() => {
+    if (adminMemberships.length === 0) {
+      setPendingJoinRequests([]);
+      return;
+    }
+
+    const adminGroupIds = adminMemberships.map(m => m.groupId);
+
+    // Firestore 'in' queries are limited to 30 items
+    const chunks: string[][] = [];
+    for (let i = 0; i < adminGroupIds.length; i += 30) {
+      chunks.push(adminGroupIds.slice(i, i + 30));
+    }
+
+    const unsubscribes: (() => void)[] = [];
+
+    chunks.forEach((chunk) => {
+      const q = query(
+        collection(db, 'groupJoinRequests'),
+        where('groupId', 'in', chunk),
+        where('status', '==', 'pending')
+      );
+
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const requests = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as GroupJoinRequest[];
+        setPendingJoinRequests(requests);
+      });
+
+      unsubscribes.push(unsubscribe);
+    });
+
+    return () => unsubscribes.forEach(u => u());
+  }, [adminMemberships]);
+
+  // Fetch user info for pending join requesters
+  useEffect(() => {
+    if (pendingJoinRequests.length === 0) {
+      setRequesters(new Map());
+      return;
+    }
+
+    const userIds = [...new Set(pendingJoinRequests.map(r => r.userId))];
+
+    userIds.forEach(async (reqUserId) => {
+      const userDoc = await getDoc(doc(db, 'users', reqUserId));
+      if (userDoc.exists()) {
+        setRequesters((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(reqUserId, { uid: userDoc.id, ...userDoc.data() } as User);
+          return newMap;
+        });
+      }
+    });
+  }, [pendingJoinRequests]);
+
+  // Fetch group info for pending join requests (for admin notifications)
+  useEffect(() => {
+    if (pendingJoinRequests.length === 0) {
+      return;
+    }
+
+    const groupIds = [...new Set(pendingJoinRequests.map(r => r.groupId))];
+
+    groupIds.forEach(async (groupId) => {
+      const groupDoc = await getDoc(doc(db, 'groups', groupId));
+      if (groupDoc.exists()) {
+        setGroups((prev) => {
+          const newMap = new Map(prev);
+          newMap.set(groupId, { id: groupDoc.id, ...groupDoc.data() } as Group);
+          return newMap;
+        });
+      }
+    });
+  }, [pendingJoinRequests]);
+
   // Build notifications from the data
   const notifications = useMemo<Notification[]>(() => {
     const notifs: Notification[] = [];
@@ -205,11 +314,29 @@ export function useNotifications(userId: string | undefined) {
       }
     });
 
+    // Add pending join request notifications for admins
+    pendingJoinRequests.forEach((request) => {
+      const group = groups.get(request.groupId);
+      const groupName = group?.name || 'gruppen';
+      const requester = requesters.get(request.userId);
+      const requesterName = requester?.displayName || 'Noen';
+
+      notifs.push({
+        id: `join_request_${request.id}`,
+        type: 'join_request',
+        title: 'Ny forespørsel',
+        message: `${requesterName} ønsker å bli med i "${groupName}"`,
+        timestamp: request.requestedAt,
+        read: false,
+        groupId: request.groupId,
+      });
+    });
+
     // Sort by timestamp, newest first
     notifs.sort((a, b) => b.timestamp - a.timestamp);
 
     return notifs;
-  }, [positions, resolvedMarkets, groupRequests, groups]);
+  }, [positions, resolvedMarkets, groupRequests, groups, pendingJoinRequests, requesters]);
 
   return { notifications, loading };
 }

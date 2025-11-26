@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useNotifications, Notification } from '../hooks/useNotifications';
 
 interface NotificationBellProps {
@@ -64,6 +65,14 @@ export function NotificationBell({ userId }: NotificationBellProps) {
             </svg>
           </div>
         );
+      case 'join_request':
+        return (
+          <div className="w-8 h-8 rounded-full bg-purple-100 flex items-center justify-center">
+            <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+        );
     }
   };
 
@@ -120,11 +129,8 @@ export function NotificationBell({ userId }: NotificationBellProps) {
               </div>
             ) : (
               <div className="divide-y divide-gray-100">
-                {notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    className="p-3 hover:bg-gray-50 transition-colors"
-                  >
+                {notifications.map((notification) => {
+                  const content = (
                     <div className="flex gap-3">
                       {getNotificationIcon(notification.type)}
                       <div className="flex-1 min-w-0">
@@ -139,8 +145,31 @@ export function NotificationBell({ userId }: NotificationBellProps) {
                         </p>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+
+                  // Make join_request notifications clickable to go to the group page
+                  if (notification.type === 'join_request' && notification.groupId) {
+                    return (
+                      <Link
+                        key={notification.id}
+                        to={`/groups/${notification.groupId}`}
+                        className="block p-3 hover:bg-gray-50 transition-colors"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {content}
+                      </Link>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={notification.id}
+                      className="p-3 hover:bg-gray-50 transition-colors"
+                    >
+                      {content}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
