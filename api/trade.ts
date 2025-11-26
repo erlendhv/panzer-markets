@@ -297,6 +297,7 @@ async function matchOrder(
         totalVolume: FieldValue.increment(takerActualCost + makerActualCost),
         totalYesShares: FieldValue.increment(sharesTraded),
         totalNoShares: FieldValue.increment(sharesTraded),
+        history: FieldValue.arrayUnion({datetime: new Date(now),yesChance: executionYesPrice,}),
       });
 
       // Reduce taker's remaining amount by what they actually spent

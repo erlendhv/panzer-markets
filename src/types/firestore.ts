@@ -80,6 +80,7 @@ export interface Market {
     yes: number; // Last traded price for YES shares (0-1)
     no: number; // Last traded price for NO shares (0-1)
   };
+  history: { datetime: Date; yesChance: number }[];
 
   // Resolution
   resolutionOutcome: ResolutionOutcome;
