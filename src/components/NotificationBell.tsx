@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useNotifications, Notification } from '../hooks/useNotifications';
+import { useUserPositions } from '../hooks/useUserPositions';
 
 interface NotificationBellProps {
   userId: string;
 }
 
 export function NotificationBell({ userId }: NotificationBellProps) {
-  const { notifications, loading, dismissNotification, dismissAll } = useNotifications(userId);
+  // Get positions once and pass to useNotifications to avoid duplicate reads
+  const { positions } = useUserPositions(userId);
+  const { notifications, loading, dismissNotification, dismissAll } = useNotifications(userId, positions);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 

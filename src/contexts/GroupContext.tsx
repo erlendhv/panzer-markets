@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import type { Group, GroupMember, GroupJoinRequest } from '../types/firestore';
@@ -24,19 +24,26 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch all groups
+  // Fetch all groups once (not real-time to reduce reads)
+  // New groups will appear on page refresh
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'groups'), (snapshot) => {
-      const groups = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Group[];
-      groups.sort((a, b) => a.name.localeCompare(b.name));
-      setAllGroups(groups);
-      setLoading(false);
-    });
+    const fetchGroups = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'groups'));
+        const groups = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Group[];
+        groups.sort((a, b) => a.name.localeCompare(b.name));
+        setAllGroups(groups);
+      } catch (err) {
+        console.error('Error fetching groups:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    return () => unsubscribe();
+    fetchGroups();
   }, []);
 
   // Fetch user's memberships

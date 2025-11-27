@@ -28,8 +28,8 @@ function saveDismissedIds(ids: Set<string>) {
   localStorage.setItem(DISMISSED_KEY, JSON.stringify([...ids]));
 }
 
-export function useNotifications(userId: string | undefined) {
-  const [positions, setPositions] = useState<Position[]>([]);
+// Accept positions as a parameter to avoid duplicate reads (positions already fetched by useUserPositions)
+export function useNotifications(userId: string | undefined, positions: Position[]) {
   const [resolvedMarkets, setResolvedMarkets] = useState<Map<string, Market>>(new Map());
   const [groupRequests, setGroupRequests] = useState<GroupJoinRequest[]>([]);
   const [groups, setGroups] = useState<Map<string, Group>>(new Map());
@@ -40,29 +40,6 @@ export function useNotifications(userId: string | undefined) {
   const [adminMemberships, setAdminMemberships] = useState<GroupMember[]>([]);
   const [pendingJoinRequests, setPendingJoinRequests] = useState<GroupJoinRequest[]>([]);
   const [requesters, setRequesters] = useState<Map<string, User>>(new Map());
-
-  // Fetch user's positions
-  useEffect(() => {
-    if (!userId) {
-      setPositions([]);
-      return;
-    }
-
-    const q = query(
-      collection(db, 'positions'),
-      where('userId', '==', userId)
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const positionData = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      })) as Position[];
-      setPositions(positionData);
-    });
-
-    return unsubscribe;
-  }, [userId]);
 
   // Fetch resolved markets for user's positions
   useEffect(() => {

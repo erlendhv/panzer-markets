@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, limit, getDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { useGroups } from '../contexts/GroupContext';
@@ -23,42 +23,41 @@ export function GroupDetailPage() {
   const [group, setGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<MemberWithUser[]>([]);
   const [joinRequests, setJoinRequests] = useState<JoinRequestWithUser[]>([]);
-  const [allUsers, setAllUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState('');
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState(false);
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [joinMessage, setJoinMessage] = useState('');
   const [joinError, setJoinError] = useState<string | null>(null);
 
+  // User search state (replaces fetching ALL users)
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [userSearchResults, setUserSearchResults] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
   const currentMembership = groupId ? memberships.get(groupId) : null;
   const isMember = !!currentMembership;
   const isAdmin = currentMembership?.role === 'admin' || user?.isAdmin;
   const hasPendingRequest = groupId ? pendingRequests.has(groupId) : false;
 
-  // Get users who are not already members
+  // Get member user IDs to filter search results
   const memberUserIds = new Set(members.map(m => m.userId));
-  const availableUsers = allUsers.filter(u => !memberUserIds.has(u.uid));
 
   useEffect(() => {
     if (!groupId) return;
 
     const fetchGroupAndMembers = async () => {
       try {
-        // Fetch group
-        const groupQuery = query(
-          collection(db, 'groups'),
-          where('__name__', '==', groupId)
-        );
-        const groupSnapshot = await getDocs(groupQuery);
-        if (groupSnapshot.empty) {
+        // Fetch group using getDoc instead of query (saves 1 read)
+        const groupDocRef = doc(db, 'groups', groupId);
+        const groupSnapshot = await getDoc(groupDocRef);
+        if (!groupSnapshot.exists()) {
           setLoading(false);
           return;
         }
-        const groupDoc = groupSnapshot.docs[0];
-        setGroup({ id: groupDoc.id, ...groupDoc.data() } as Group);
+        setGroup({ id: groupSnapshot.id, ...groupSnapshot.data() } as Group);
 
         // Fetch members
         const membersQuery = query(
@@ -127,15 +126,7 @@ export function GroupDetailPage() {
         }));
 
         setJoinRequests(requestsWithUsers);
-
-        // Fetch all users for invite dropdown (only the ones not already members)
-        // We already have member users, just fetch remaining users
-        const allUsersSnapshot = await getDocs(collection(db, 'users'));
-        const usersList = allUsersSnapshot.docs.map(doc => ({
-          uid: doc.id,
-          ...doc.data(),
-        })) as User[];
-        setAllUsers(usersList);
+        // Note: We no longer fetch ALL users here - using search instead
       } catch (err) {
         console.error('Error fetching group:', err);
       } finally {
@@ -146,9 +137,41 @@ export function GroupDetailPage() {
     fetchGroupAndMembers();
   }, [groupId]);
 
+  // Search users by displayName - only triggered on explicit button click/Enter
+  const handleUserSearch = async () => {
+    if (userSearchQuery.length < 2) {
+      setInviteError('Skriv minst 2 tegn for å søke');
+      return;
+    }
+
+    setIsSearching(true);
+    setInviteError(null);
+    try {
+      const usersQuery = query(
+        collection(db, 'users'),
+        where('displayName', '>=', userSearchQuery),
+        where('displayName', '<=', userSearchQuery + '\uf8ff'),
+        limit(10)
+      );
+      const snapshot = await getDocs(usersQuery);
+      const users = snapshot.docs
+        .map(doc => ({ uid: doc.id, ...doc.data() } as User))
+        .filter(u => !memberUserIds.has(u.uid)); // Filter out existing members
+      setUserSearchResults(users);
+      if (users.length === 0) {
+        setInviteError('Ingen brukere funnet');
+      }
+    } catch (err) {
+      console.error('Error searching users:', err);
+      setInviteError('Kunne ikke søke etter brukere');
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   const handleInvite = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !groupId || !selectedUserId) return;
+    if (!user || !groupId || !selectedUser) return;
 
     setInviteError(null);
     setInviteSuccess(false);
@@ -163,7 +186,7 @@ export function GroupDetailPage() {
         },
         body: JSON.stringify({
           groupId,
-          inviteeUserId: selectedUserId,
+          inviteeUserId: selectedUser.uid,
         }),
       });
 
@@ -174,7 +197,9 @@ export function GroupDetailPage() {
       }
 
       setInviteSuccess(true);
-      setSelectedUserId('');
+      setSelectedUser(null);
+      setUserSearchQuery('');
+      setUserSearchResults([]);
 
       // Refresh members list
       window.location.reload();
@@ -593,32 +618,87 @@ export function GroupDetailPage() {
       {isMember && (
       <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4">Inviter medlem</h2>
-        {availableUsers.length > 0 ? (
-          <form onSubmit={handleInvite} className="flex gap-4">
-            <select
-              value={selectedUserId}
-              onChange={(e) => setSelectedUserId(e.target.value)}
-              required
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+
+        {/* Search for users */}
+        <div className="mb-4">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={userSearchQuery}
+              onChange={(e) => setUserSearchQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleUserSearch())}
+              placeholder="Søk etter brukernavn..."
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              type="button"
+              onClick={handleUserSearch}
+              disabled={isSearching || userSearchQuery.length < 2}
+              className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 transition-colors"
             >
-              <option value="">Velg bruker...</option>
-              {availableUsers.map((u) => (
-                <option key={u.uid} value={u.uid}>
-                  {u.displayName || u.email}
-                </option>
-              ))}
-            </select>
+              {isSearching ? 'Søker...' : 'Søk'}
+            </button>
+          </div>
+        </div>
+
+        {/* Search results */}
+        {userSearchResults.length > 0 && (
+          <div className="mb-4 border border-gray-200 rounded-lg divide-y">
+            {userSearchResults.map((u) => (
+              <button
+                key={u.uid}
+                type="button"
+                onClick={() => {
+                  setSelectedUser(u);
+                  setUserSearchResults([]);
+                }}
+                className={`w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 ${
+                  selectedUser?.uid === u.uid ? 'bg-blue-50' : ''
+                }`}
+              >
+                {u.photoURL ? (
+                  <img src={u.photoURL} alt="" className="w-8 h-8 rounded-full" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500 text-sm">{u.displayName?.[0] || '?'}</span>
+                  </div>
+                )}
+                <span className="font-medium text-gray-900">{u.displayName || u.email}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Selected user + invite button */}
+        {selectedUser && (
+          <form onSubmit={handleInvite} className="flex items-center gap-4">
+            <div className="flex-1 flex items-center gap-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+              {selectedUser.photoURL ? (
+                <img src={selectedUser.photoURL} alt="" className="w-8 h-8 rounded-full" />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-500 text-sm">{selectedUser.displayName?.[0] || '?'}</span>
+                </div>
+              )}
+              <span className="font-medium text-gray-900">{selectedUser.displayName || selectedUser.email}</span>
+              <button
+                type="button"
+                onClick={() => setSelectedUser(null)}
+                className="ml-auto text-gray-400 hover:text-gray-600"
+              >
+                ✕
+              </button>
+            </div>
             <button
               type="submit"
-              disabled={actionLoading === 'invite' || !selectedUserId}
+              disabled={actionLoading === 'invite'}
               className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
             >
               {actionLoading === 'invite' ? 'Inviterer...' : 'Inviter'}
             </button>
           </form>
-        ) : (
-          <p className="text-gray-500">Alle brukere er allerede medlemmer av denne gruppen.</p>
         )}
+
         {inviteError && (
           <p className="mt-2 text-sm text-red-600">{inviteError}</p>
         )}
