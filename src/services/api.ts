@@ -11,6 +11,8 @@ import type {
   CancelOrderResponse,
   ResolveMarketRequest,
   ResolveMarketResponse,
+  MarketBanRequest,
+  MarketBanResponse,
 } from '../types/firestore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -90,6 +92,59 @@ export async function resolveMarket(request: ResolveMarketRequest): Promise<Reso
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to resolve market');
+  }
+
+  return response.json();
+}
+
+/**
+ * Ban a user from a market (Admin only)
+ */
+export async function banUserFromMarket(marketId: string, userId: string, reason: string): Promise<MarketBanResponse> {
+  const headers = await getAuthHeaders();
+
+  const request: MarketBanRequest = {
+    action: 'ban',
+    marketId,
+    userId,
+    reason,
+  };
+
+  const response = await fetch(`${API_BASE_URL}/marketBan`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to ban user from market');
+  }
+
+  return response.json();
+}
+
+/**
+ * Unban a user from a market (Admin only)
+ */
+export async function unbanUserFromMarket(marketId: string, userId: string): Promise<MarketBanResponse> {
+  const headers = await getAuthHeaders();
+
+  const request: MarketBanRequest = {
+    action: 'unban',
+    marketId,
+    userId,
+  };
+
+  const response = await fetch(`${API_BASE_URL}/marketBan`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to unban user from market');
   }
 
   return response.json();

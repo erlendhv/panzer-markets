@@ -8,6 +8,7 @@ import { PlaceOrderForm } from '../components/market/PlaceOrderForm';
 import { CommentsSection, CommentsSectionRef } from '../components/market/CommentsSection';
 import { MarketParticipants } from '../components/market/MarketParticipants';
 import { MarketHistoryChart } from "../components/market/MarketHistoryChart";
+import { MarketBannedUsers } from '../components/market/MarketBannedUsers';
 import { useComments } from '../hooks/useComments';
 
 
@@ -289,6 +290,11 @@ export function MarketDetailPage() {
           <OrderBookDisplay marketId={market.id} />
           <MarketParticipants marketId={market.id} />
         </div>
+      </div>
+
+      {/* Banned Users Management (Admin only) */}
+      <div className="mb-6">
+        <MarketBannedUsers market={market} />
       </div>
 
       {/* Comments */}

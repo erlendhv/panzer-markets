@@ -272,6 +272,22 @@ export interface ResolveMarketResponse {
 }
 
 // ============================================================================
+// BAN USER FROM MARKET TYPES
+// ============================================================================
+
+export interface MarketBanRequest {
+  action: 'ban' | 'unban';
+  marketId: string;
+  userId: string;
+  reason?: string; // Required for ban, optional for unban
+}
+
+export interface MarketBanResponse {
+  success: boolean;
+  error?: string;
+}
+
+// ============================================================================
 // COMMENT TYPES
 // ============================================================================
 
@@ -285,6 +301,19 @@ export interface Comment {
   createdAt: number;
   updatedAt: number | null;
   referencedTimestamp?: number | null;
+}
+
+// ============================================================================
+// MARKET BANNED USER TYPES
+// ============================================================================
+
+export interface MarketBannedUser {
+  id: string; // Format: `${marketId}_${userId}`
+  marketId: string;
+  userId: string;
+  bannedBy: string; // Admin who banned the user
+  reason: string;
+  bannedAt: number;
 }
 
 // ============================================================================

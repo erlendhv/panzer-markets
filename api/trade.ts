@@ -19,7 +19,8 @@ import type {
   User,
   Market,
   Position,
-  OrderSide
+  OrderSide,
+  MarketBannedUser
 } from '../src/types/firestore';
 
 // Initialize Firebase Admin
@@ -127,6 +128,15 @@ async function matchOrder(
     const market = marketDoc.data() as Market;
     if (market.status !== 'open') {
       throw new Error('Market is not open for trading');
+    }
+
+    // 1b. Check if user is banned from this market
+    const banId = `${orderRequest.marketId}_${userId}`;
+    const banRef = db.collection('marketBannedUsers').doc(banId);
+    const banDoc = await transaction.get(banRef);
+    if (banDoc.exists) {
+      const ban = banDoc.data() as MarketBannedUser;
+      throw new Error(`Du er utestengt fra denne beten: ${ban.reason}`);
     }
 
     // 2. Check user balance
