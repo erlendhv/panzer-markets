@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
-import { collection, query, onSnapshot, doc, updateDoc, increment } from 'firebase/firestore';
+import { collection, query, onSnapshot, doc, updateDoc, increment, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
-import type { User } from '../../types/firestore';
+import type { User, Order, Position, Market } from '../../types/firestore';
+import { getAvailableBalance } from '../../utils/balance';
 
 export function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [positions, setPositions] = useState<Position[]>([]);
+  const [markets, setMarkets] = useState<Map<string, Market>>(new Map());
   const [loading, setLoading] = useState(true);
   const [adjustingBalance, setAdjustingBalance] = useState<string | null>(null);
 
+  // Fetch users
   useEffect(() => {
     const q = query(collection(db, 'users'));
 
@@ -19,6 +24,72 @@ export function UserManagement() {
 
     return unsubscribe;
   }, []);
+
+  // Fetch open orders (for calculating available balance)
+  useEffect(() => {
+    const q = query(
+      collection(db, 'orders'),
+      where('status', 'in', ['open', 'partially_filled'])
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const orderData = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as Order));
+      setOrders(orderData);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Fetch all positions
+  useEffect(() => {
+    const q = query(collection(db, 'positions'));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const positionData = snapshot.docs.map((doc) => doc.data() as Position);
+      setPositions(positionData);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Fetch open markets (for calculating position values)
+  useEffect(() => {
+    const q = query(
+      collection(db, 'markets'),
+      where('status', '==', 'open')
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const marketData = new Map<string, Market>();
+      snapshot.docs.forEach((doc) => {
+        marketData.set(doc.id, { id: doc.id, ...doc.data() } as Market);
+      });
+      setMarkets(marketData);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  // Helper to get user's orders
+  const getUserOrders = (userId: string) => orders.filter(o => o.userId === userId);
+
+  // Helper to calculate user's position value in open markets
+  const getUserPositionValue = (userId: string) => {
+    return positions
+      .filter(p => p.userId === userId)
+      .reduce((sum, pos) => {
+        const market = markets.get(pos.marketId);
+        if (!market) return sum; // Skip if market not open
+        const yesValue = pos.yesShares * market.lastTradedPrice.yes;
+        const noValue = pos.noShares * market.lastTradedPrice.no;
+        return sum + yesValue + noValue;
+      }, 0);
+  };
+
+  // Helper to calculate total value (balance + position value)
+  const getUserTotalValue = (user: User) => {
+    return user.balance + getUserPositionValue(user.uid);
+  };
 
   const adjustBalance = async (userId: string, amount: number) => {
     setAdjustingBalance(userId);
@@ -105,11 +176,11 @@ export function UserManagement() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-semibold text-gray-900">
-                    ${user.balance.toFixed(2)}
+                    ${getAvailableBalance(user.balance, getUserOrders(user.uid)).toFixed(2)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">${user.portfolioValue.toFixed(2)}</div>
+                  <div className="text-sm text-gray-900">${getUserTotalValue(user).toFixed(2)}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {user.isAdmin ? (
