@@ -4,6 +4,16 @@ interface OrderBookDisplayProps {
   marketId: string;
 }
 
+/**
+ * Calculate how much the opposite side would need to spend to fully match an order.
+ * For a YES order at price P with amount A:
+ *   - Shares available = A / P
+ *   - Cost for NO buyer = Shares × (1 - P) = A × (1 - P) / P
+ */
+function calculateCostToMatch(amount: number, price: number): number {
+  return amount * (1 - price) / price;
+}
+
 export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
   const { orderBook, loading } = useOrderBook(marketId);
 
@@ -41,19 +51,27 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
               <div className="text-sm text-gray-400 italic">Ingen JA-ordre</div>
             ) : (
               <div className="space-y-1">
-                {orderBook.yes.slice(0, 5).map((entry, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between text-sm p-2 bg-green-50 rounded"
-                  >
-                    <span className="font-medium text-green-700">
-                      ${entry.price.toFixed(2)}
-                    </span>
-                    <span className="text-gray-600">
-                      ${entry.totalAmount.toFixed(0)}
-                    </span>
-                  </div>
-                ))}
+                {orderBook.yes.slice(0, 5).map((entry, idx) => {
+                  const costToMatch = calculateCostToMatch(entry.totalAmount, entry.price);
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between text-sm p-2 bg-green-50 rounded"
+                    >
+                      <span className="font-medium text-green-700">
+                        ${entry.price.toFixed(2)}
+                      </span>
+                      <div className="text-right">
+                        <span className="text-gray-600">
+                          ${entry.totalAmount.toFixed(0)}
+                        </span>
+                        <span className="text-xs text-gray-400 ml-2" title="Beløp NEI-kjøper må betale for å matche">
+                          (NEI: ${costToMatch.toFixed(0)})
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
                 {orderBook.yes.length > 5 && (
                   <div className="text-xs text-gray-400 text-center pt-1">
                     +{orderBook.yes.length - 5} flere nivåer
@@ -73,19 +91,27 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
               <div className="text-sm text-gray-400 italic">Ingen NEI-ordre</div>
             ) : (
               <div className="space-y-1">
-                {orderBook.no.slice(0, 5).map((entry, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between text-sm p-2 bg-red-50 rounded"
-                  >
-                    <span className="font-medium text-red-700">
-                      ${entry.price.toFixed(2)}
-                    </span>
-                    <span className="text-gray-600">
-                      ${entry.totalAmount.toFixed(0)}
-                    </span>
-                  </div>
-                ))}
+                {orderBook.no.slice(0, 5).map((entry, idx) => {
+                  const costToMatch = calculateCostToMatch(entry.totalAmount, entry.price);
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-center justify-between text-sm p-2 bg-red-50 rounded"
+                    >
+                      <span className="font-medium text-red-700">
+                        ${entry.price.toFixed(2)}
+                      </span>
+                      <div className="text-right">
+                        <span className="text-gray-600">
+                          ${entry.totalAmount.toFixed(0)}
+                        </span>
+                        <span className="text-xs text-gray-400 ml-2" title="Beløp JA-kjøper må betale for å matche">
+                          (JA: ${costToMatch.toFixed(0)})
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
                 {orderBook.no.length > 5 && (
                   <div className="text-xs text-gray-400 text-center pt-1">
                     +{orderBook.no.length - 5} flere nivåer
@@ -101,7 +127,7 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>Pris</span>
-          <span>Beløp</span>
+          <span>Beløp (kostnad for å matche)</span>
         </div>
       </div>
     </div>
