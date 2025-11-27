@@ -109,6 +109,7 @@ export function ProposePage() {
           totalVolume: 0,
           totalYesShares: 0,
           totalNoShares: 0,
+          lastTradeAt: null,
         };
 
         await addDoc(collection(db, 'markets'), newMarket);

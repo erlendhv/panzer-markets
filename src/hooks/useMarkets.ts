@@ -87,6 +87,37 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
           });
         }
 
+        // Sort by "hotness" - prioritize recent activity and volume
+        marketData.sort((a, b) => {
+          // Calculate hotness score for each market
+          const getHotnessScore = (market: Market) => {
+            const now = Date.now();
+            const oneDay = 24 * 60 * 60 * 1000;
+            const oneWeek = 7 * oneDay;
+
+            let score = 0;
+
+            // Recent trade bonus (up to 1000 points for trades in last 24h, decays over a week)
+            if (market.lastTradeAt) {
+              const timeSinceTrade = now - market.lastTradeAt;
+              if (timeSinceTrade < oneDay) {
+                score += 1000 * (1 - timeSinceTrade / oneDay);
+              } else if (timeSinceTrade < oneWeek) {
+                score += 200 * (1 - timeSinceTrade / oneWeek);
+              }
+            }
+
+            // Volume bonus (logarithmic scale, max ~100 points)
+            if (market.totalVolume > 0) {
+              score += Math.log10(market.totalVolume + 1) * 30;
+            }
+
+            return score;
+          };
+
+          return getHotnessScore(b) - getHotnessScore(a);
+        });
+
         setMarkets(marketData);
         setLoading(false);
       },

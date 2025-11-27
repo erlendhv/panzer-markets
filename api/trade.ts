@@ -311,6 +311,7 @@ async function matchOrder(
         totalVolume: FieldValue.increment(takerActualCost + makerActualCost),
         totalYesShares: FieldValue.increment(sharesTraded),
         totalNoShares: FieldValue.increment(sharesTraded),
+        lastTradeAt: now,
         history: FieldValue.arrayUnion({datetime: new Date(now),yesChance: executionYesPrice,}),
       });
 

@@ -90,6 +90,9 @@ export interface Market {
   totalVolume: number; // Total USD traded
   totalYesShares: number; // Total YES shares minted
   totalNoShares: number; // Total NO shares minted
+
+  // Activity tracking
+  lastTradeAt: number | null; // Unix timestamp of last trade (for "hot" sorting)
 }
 
 // ============================================================================

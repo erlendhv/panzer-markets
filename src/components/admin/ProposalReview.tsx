@@ -55,6 +55,7 @@ export function ProposalReview() {
         totalVolume: 0,
         totalYesShares: 0,
         totalNoShares: 0,
+        lastTradeAt: null,
       };
 
       const marketRef = await addDoc(collection(db, 'markets'), newMarket);
