@@ -101,20 +101,26 @@ export function useNotifications(userId: string | undefined, positions: Position
     return unsubscribe;
   }, [userId]);
 
-  // Fetch group names for the requests (batched)
+  // Fetch group names for all requests (consolidated - was two separate effects)
   useEffect(() => {
-    if (groupRequests.length === 0) {
+    // Collect group IDs from both user's requests and pending admin requests
+    const allGroupIds = new Set<string>([
+      ...groupRequests.map(r => r.groupId),
+      ...pendingJoinRequests.map(r => r.groupId),
+    ]);
+
+    if (allGroupIds.size === 0) {
       return;
     }
 
-    const groupIds = [...new Set(groupRequests.map(r => r.groupId))];
+    const groupIdsArray = [...allGroupIds];
 
     const fetchGroups = async () => {
       const fetchedGroups = new Map<string, Group>();
 
       // Firestore 'in' queries limited to 30 items, chunk if needed
-      for (let i = 0; i < groupIds.length; i += 30) {
-        const chunk = groupIds.slice(i, i + 30);
+      for (let i = 0; i < groupIdsArray.length; i += 30) {
+        const chunk = groupIdsArray.slice(i, i + 30);
         const q = query(
           collection(db, 'groups'),
           where('__name__', 'in', chunk)
@@ -125,15 +131,11 @@ export function useNotifications(userId: string | undefined, positions: Position
         });
       }
 
-      setGroups((prev) => {
-        const merged = new Map(prev);
-        fetchedGroups.forEach((v, k) => merged.set(k, v));
-        return merged;
-      });
+      setGroups(fetchedGroups);
     };
 
     fetchGroups();
-  }, [groupRequests]);
+  }, [groupRequests, pendingJoinRequests]);
 
   // Fetch groups where user is admin (for join request notifications)
   useEffect(() => {
@@ -211,40 +213,6 @@ export function useNotifications(userId: string | undefined, positions: Position
       setRequesters(users);
     });
   }, [pendingJoinRequests, getUsers]);
-
-  // Fetch group info for pending join requests (batched)
-  useEffect(() => {
-    if (pendingJoinRequests.length === 0) {
-      return;
-    }
-
-    const groupIds = [...new Set(pendingJoinRequests.map(r => r.groupId))];
-
-    const fetchGroups = async () => {
-      const fetchedGroups = new Map<string, Group>();
-
-      // Firestore 'in' queries limited to 30 items, chunk if needed
-      for (let i = 0; i < groupIds.length; i += 30) {
-        const chunk = groupIds.slice(i, i + 30);
-        const q = query(
-          collection(db, 'groups'),
-          where('__name__', 'in', chunk)
-        );
-        const snapshot = await getDocs(q);
-        snapshot.docs.forEach((doc) => {
-          fetchedGroups.set(doc.id, { id: doc.id, ...doc.data() } as Group);
-        });
-      }
-
-      setGroups((prev) => {
-        const merged = new Map(prev);
-        fetchedGroups.forEach((v, k) => merged.set(k, v));
-        return merged;
-      });
-    };
-
-    fetchGroups();
-  }, [pendingJoinRequests]);
 
   // Build notifications from the data
   const notifications = useMemo<Notification[]>(() => {

@@ -10,6 +10,7 @@ import {
   where,
   orderBy,
   onSnapshot,
+  limit as firestoreLimit,
   QueryConstraint,
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
@@ -19,6 +20,7 @@ interface UseMarketsOptions {
   status?: MarketStatus;
   groupId?: string | null; // null = show all accessible, 'public' = public only, specific ID = show only that group
   userGroupIds?: string[]; // List of groups the user belongs to (for "all" view)
+  limit?: number; // Limit number of markets fetched (default: 50)
 }
 
 export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
@@ -31,7 +33,7 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
     ? { status: statusOrOptions }
     : statusOrOptions || {};
 
-  const { status, groupId, userGroupIds } = options;
+  const { status, groupId, userGroupIds, limit = 50 } = options;
 
   // Memoize userGroupIds to prevent unnecessary re-subscriptions
   // Only update when the actual content changes, not the array reference
@@ -63,6 +65,11 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
     }
 
     constraints.push(orderBy('createdAt', 'desc'));
+
+    // Add limit to reduce reads (especially important for "all" and "public" views)
+    if (limit) {
+      constraints.push(firestoreLimit(limit));
+    }
 
     const q = query(collection(db, 'markets'), ...constraints);
 
@@ -136,7 +143,7 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
     );
 
     return unsubscribe;
-  }, [status, groupId, stableUserGroupIds]);
+  }, [status, groupId, stableUserGroupIds, limit]);
 
   return { markets, loading, error };
 }
