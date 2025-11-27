@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { useUserCache } from '../contexts/UserCacheContext';
 import type { Order, Trade, User } from '../types/firestore';
 
 export interface MarketParticipant {
@@ -18,9 +19,13 @@ interface UserAmounts {
 }
 
 export function useMarketParticipants(marketId: string | undefined) {
+  const { getUsers } = useUserCache();
   const [participants, setParticipants] = useState<MarketParticipant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Store trades in a ref since they're fetched once and don't change
+  const tradesRef = useRef<Trade[]>([]);
 
   useEffect(() => {
     if (!marketId) {
@@ -29,14 +34,14 @@ export function useMarketParticipants(marketId: string | undefined) {
       return;
     }
 
-    // Track data from both queries
     let orders: Order[] = [];
-    let trades: Trade[] = [];
-    let ordersLoaded = false;
     let tradesLoaded = false;
+    let ordersLoaded = false;
 
     const processParticipants = async () => {
       if (!ordersLoaded || !tradesLoaded) return;
+
+      const trades = tradesRef.current;
 
       // Map to track user amounts
       const userAmountsMap = new Map<string, UserAmounts>();
@@ -66,22 +71,9 @@ export function useMarketParticipants(marketId: string | undefined) {
         userAmountsMap.set(trade.noUserId, noExisting);
       }
 
-      // Batch fetch user data
+      // Batch fetch user data using cache
       const userIds = Array.from(userAmountsMap.keys());
-      const userMap = new Map<string, User>();
-
-      // Firestore 'in' queries limited to 30 items, chunk if needed
-      for (let i = 0; i < userIds.length; i += 30) {
-        const chunk = userIds.slice(i, i + 30);
-        const usersQuery = query(
-          collection(db, 'users'),
-          where('__name__', 'in', chunk)
-        );
-        const snapshot = await getDocs(usersQuery);
-        snapshot.docs.forEach((doc) => {
-          userMap.set(doc.id, { uid: doc.id, ...doc.data() } as User);
-        });
-      }
+      const userMap = await getUsers(userIds);
 
       // Build participants from fetched users
       const validParticipants: MarketParticipant[] = [];
@@ -105,7 +97,30 @@ export function useMarketParticipants(marketId: string | undefined) {
       setLoading(false);
     };
 
-    // Subscribe to orders (only active orders, not cancelled ones)
+    // Fetch trades once (historical data doesn't change)
+    const fetchTrades = async () => {
+      try {
+        const tradesQuery = query(
+          collection(db, 'trades'),
+          where('marketId', '==', marketId)
+        );
+        const snapshot = await getDocs(tradesQuery);
+        tradesRef.current = snapshot.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        })) as Trade[];
+        tradesLoaded = true;
+        processParticipants();
+      } catch (err) {
+        console.error('Error fetching trades:', err);
+        setError('Failed to load participants');
+        setLoading(false);
+      }
+    };
+
+    fetchTrades();
+
+    // Subscribe to orders (real-time - orders can change)
     const ordersQuery = query(
       collection(db, 'orders'),
       where('marketId', '==', marketId),
@@ -129,34 +144,10 @@ export function useMarketParticipants(marketId: string | undefined) {
       }
     );
 
-    // Subscribe to trades
-    const tradesQuery = query(
-      collection(db, 'trades'),
-      where('marketId', '==', marketId)
-    );
-
-    const unsubscribesTrades = onSnapshot(
-      tradesQuery,
-      (snapshot) => {
-        trades = snapshot.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        })) as Trade[];
-        tradesLoaded = true;
-        processParticipants();
-      },
-      (err) => {
-        console.error('Error fetching trades:', err);
-        setError('Failed to load participants');
-        setLoading(false);
-      }
-    );
-
     return () => {
       unsubscribeOrders();
-      unsubscribesTrades();
     };
-  }, [marketId]);
+  }, [marketId, getUsers]);
 
   return { participants, loading, error };
 }

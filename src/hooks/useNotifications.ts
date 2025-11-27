@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
+import { useUserCache } from '../contexts/UserCacheContext';
 import type { Position, Market, GroupJoinRequest, Group, GroupMember, User } from '../types/firestore';
 
 export interface Notification {
@@ -30,6 +31,7 @@ function saveDismissedIds(ids: Set<string>) {
 
 // Accept positions as a parameter to avoid duplicate reads (positions already fetched by useUserPositions)
 export function useNotifications(userId: string | undefined, positions: Position[]) {
+  const { getUsers } = useUserCache();
   const [resolvedMarkets, setResolvedMarkets] = useState<Map<string, Market>>(new Map());
   const [groupRequests, setGroupRequests] = useState<GroupJoinRequest[]>([]);
   const [groups, setGroups] = useState<Map<string, Group>>(new Map());
@@ -41,7 +43,7 @@ export function useNotifications(userId: string | undefined, positions: Position
   const [pendingJoinRequests, setPendingJoinRequests] = useState<GroupJoinRequest[]>([]);
   const [requesters, setRequesters] = useState<Map<string, User>>(new Map());
 
-  // Fetch resolved markets for user's positions
+  // Fetch resolved markets for user's positions (one-time fetch - resolved markets don't change)
   useEffect(() => {
     if (positions.length === 0) {
       setResolvedMarkets(new Map());
@@ -51,36 +53,28 @@ export function useNotifications(userId: string | undefined, positions: Position
 
     const marketIds = [...new Set(positions.map(p => p.marketId))];
 
-    // Firestore 'in' queries are limited to 30 items
-    const chunks = [];
-    for (let i = 0; i < marketIds.length; i += 30) {
-      chunks.push(marketIds.slice(i, i + 30));
-    }
+    const fetchResolvedMarkets = async () => {
+      const newMap = new Map<string, Market>();
 
-    const unsubscribes: (() => void)[] = [];
-
-    chunks.forEach((chunk) => {
-      const q = query(
-        collection(db, 'markets'),
-        where('__name__', 'in', chunk),
-        where('status', '==', 'resolved')
-      );
-
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        setResolvedMarkets((prev) => {
-          const newMap = new Map(prev);
-          snapshot.docs.forEach((doc) => {
-            newMap.set(doc.id, { id: doc.id, ...doc.data() } as Market);
-          });
-          return newMap;
+      // Firestore 'in' queries are limited to 30 items
+      for (let i = 0; i < marketIds.length; i += 30) {
+        const chunk = marketIds.slice(i, i + 30);
+        const q = query(
+          collection(db, 'markets'),
+          where('__name__', 'in', chunk),
+          where('status', '==', 'resolved')
+        );
+        const snapshot = await getDocs(q);
+        snapshot.docs.forEach((doc) => {
+          newMap.set(doc.id, { id: doc.id, ...doc.data() } as Market);
         });
-        setLoading(false);
-      });
+      }
 
-      unsubscribes.push(unsubscribe);
-    });
+      setResolvedMarkets(newMap);
+      setLoading(false);
+    };
 
-    return () => unsubscribes.forEach(u => u());
+    fetchResolvedMarkets();
   }, [positions]);
 
   // Fetch user's reviewed (approved/denied) group join requests
@@ -203,7 +197,7 @@ export function useNotifications(userId: string | undefined, positions: Position
     return () => unsubscribes.forEach(u => u());
   }, [adminMemberships]);
 
-  // Fetch user info for pending join requesters (batched)
+  // Fetch user info for pending join requesters (using cache)
   useEffect(() => {
     if (pendingJoinRequests.length === 0) {
       setRequesters(new Map());
@@ -212,31 +206,11 @@ export function useNotifications(userId: string | undefined, positions: Position
 
     const userIds = [...new Set(pendingJoinRequests.map(r => r.userId))];
 
-    const fetchUsers = async () => {
-      const fetchedUsers = new Map<string, User>();
-
-      // Firestore 'in' queries limited to 30 items, chunk if needed
-      for (let i = 0; i < userIds.length; i += 30) {
-        const chunk = userIds.slice(i, i + 30);
-        const q = query(
-          collection(db, 'users'),
-          where('__name__', 'in', chunk)
-        );
-        const snapshot = await getDocs(q);
-        snapshot.docs.forEach((doc) => {
-          fetchedUsers.set(doc.id, { uid: doc.id, ...doc.data() } as User);
-        });
-      }
-
-      setRequesters((prev) => {
-        const merged = new Map(prev);
-        fetchedUsers.forEach((v, k) => merged.set(k, v));
-        return merged;
-      });
-    };
-
-    fetchUsers();
-  }, [pendingJoinRequests]);
+    // Use the shared user cache to avoid duplicate reads
+    getUsers(userIds).then((users) => {
+      setRequesters(users);
+    });
+  }, [pendingJoinRequests, getUsers]);
 
   // Fetch group info for pending join requests (batched)
   useEffect(() => {

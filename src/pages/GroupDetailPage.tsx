@@ -4,6 +4,7 @@ import { collection, query, where, getDocs, limit, getDoc, doc } from 'firebase/
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { useGroups } from '../contexts/GroupContext';
+import { useUserCache } from '../contexts/UserCacheContext';
 import type { Group, GroupMember, GroupJoinRequest, User } from '../types/firestore';
 
 interface MemberWithUser extends GroupMember {
@@ -18,6 +19,7 @@ export function GroupDetailPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const { user } = useAuth();
   const { memberships, pendingRequests } = useGroups();
+  const { getUsers } = useUserCache();
   const navigate = useNavigate();
 
   const [group, setGroup] = useState<Group | null>(null);
@@ -83,26 +85,13 @@ export function GroupDetailPage() {
         })) as GroupJoinRequest[];
 
         // Collect all user IDs we need to fetch (members + requesters)
-        const userIdsToFetch = new Set<string>([
+        const userIdsToFetch = [
           ...membersList.map(m => m.userId),
           ...requestsList.map(r => r.userId),
-        ]);
+        ];
 
-        // Batch fetch all needed users
-        const userMap = new Map<string, User>();
-        const userIdsArray = [...userIdsToFetch];
-
-        for (let i = 0; i < userIdsArray.length; i += 30) {
-          const chunk = userIdsArray.slice(i, i + 30);
-          const usersQuery = query(
-            collection(db, 'users'),
-            where('__name__', 'in', chunk)
-          );
-          const usersSnapshot = await getDocs(usersQuery);
-          usersSnapshot.docs.forEach((doc) => {
-            userMap.set(doc.id, { uid: doc.id, ...doc.data() } as User);
-          });
-        }
+        // Fetch users using cache
+        const userMap = await getUsers(userIdsToFetch);
 
         // Build members with user data
         const membersWithUsers: MemberWithUser[] = membersList.map((member) => ({
@@ -135,7 +124,7 @@ export function GroupDetailPage() {
     };
 
     fetchGroupAndMembers();
-  }, [groupId]);
+  }, [groupId, getUsers]);
 
   // Search users by displayName - only triggered on explicit button click/Enter
   const handleUserSearch = async () => {
