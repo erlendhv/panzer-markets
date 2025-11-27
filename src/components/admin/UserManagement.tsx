@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { collection, query, onSnapshot, doc, updateDoc, increment, where } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import type { User, Order, Position, Market } from '../../types/firestore';
-import { getAvailableBalance } from '../../utils/balance';
 
 export function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -25,7 +24,7 @@ export function UserManagement() {
     return unsubscribe;
   }, []);
 
-  // Fetch open orders (for calculating available balance)
+  // Fetch open orders (single query for all users - most efficient)
   useEffect(() => {
     const q = query(
       collection(db, 'orders'),
@@ -70,8 +69,12 @@ export function UserManagement() {
     return unsubscribe;
   }, []);
 
-  // Helper to get user's orders
-  const getUserOrders = (userId: string) => orders.filter(o => o.userId === userId);
+  // Helper to calculate user's locked amount in open orders
+  const getUserLockedInOrders = (userId: string) => {
+    return orders
+      .filter(o => o.userId === userId)
+      .reduce((sum, o) => sum + o.remainingAmount, 0);
+  };
 
   // Helper to calculate user's position value in open markets
   const getUserPositionValue = (userId: string) => {
@@ -86,9 +89,9 @@ export function UserManagement() {
       }, 0);
   };
 
-  // Helper to calculate total value (balance + position value)
+  // Helper to calculate total value (balance + locked in orders + position value)
   const getUserTotalValue = (user: User) => {
-    return user.balance + getUserPositionValue(user.uid);
+    return user.balance + getUserLockedInOrders(user.uid) + getUserPositionValue(user.uid);
   };
 
   const adjustBalance = async (userId: string, amount: number) => {
@@ -176,7 +179,7 @@ export function UserManagement() {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-semibold text-gray-900">
-                    ${getAvailableBalance(user.balance, getUserOrders(user.uid)).toFixed(2)}
+                    ${user.balance.toFixed(2)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">

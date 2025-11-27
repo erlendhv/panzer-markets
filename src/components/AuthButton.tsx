@@ -1,12 +1,9 @@
 import { useAuth } from '../hooks/useAuth';
-import { useUserOrders } from '../hooks/useUserOrders';
-import { getAvailableBalance } from '../utils/balance';
 import { NotificationBell } from './NotificationBell';
 import { InfoButton } from './InfoButton';
 
 export function AuthButton() {
   const { user, loading, error, signInWithGoogle, signOut } = useAuth();
-  const { orders } = useUserOrders(user?.uid);
 
   if (loading) {
     return (
@@ -23,7 +20,7 @@ export function AuthButton() {
         <NotificationBell userId={user.uid} />
         <div className="text-right">
           <div className="text-sm font-medium text-gray-900">{user.displayName}</div>
-          <div className="text-lg font-bold text-green-600">${getAvailableBalance(user.balance, orders).toFixed(2)}</div>
+          <div className="text-lg font-bold text-green-600">${user.balance.toFixed(2)}</div>
         </div>
         {user.photoURL && (
           <img
