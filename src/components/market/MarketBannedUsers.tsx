@@ -39,7 +39,6 @@ export function MarketBannedUsers({ market }: MarketBannedUsersProps) {
     const unsubscribe = onSnapshot(
       bannedQuery,
       async (snapshot) => {
-        console.log('Banned users snapshot:', snapshot.docs.length, 'docs for market', market.id);
         const bans = snapshot.docs.map(doc => ({
           id: doc.id,
           ...doc.data(),

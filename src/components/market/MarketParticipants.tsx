@@ -22,7 +22,7 @@ export function MarketParticipants({ marketId }: MarketParticipantsProps) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Deltakere</h3>
-        <p className="text-gray-500 text-sm">Ingen har lagt inn ordre ennå</p>
+        <p className="text-gray-500 text-sm">Ingen har bettet ennå</p>
       </div>
     );
   }
