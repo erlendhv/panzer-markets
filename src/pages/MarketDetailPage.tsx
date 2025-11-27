@@ -160,12 +160,12 @@ export function MarketDetailPage() {
   return (
     <div>
       {/* Market Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">{market.question}</h1>
+      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
+        <div className="flex items-start justify-between gap-3 mb-4">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{market.question}</h1>
             {market.description && (
-              <p className="text-gray-600">{market.description}</p>
+              <p className="text-sm sm:text-base text-gray-600">{market.description}</p>
             )}
             <div className="mt-2">
               {group ? (
@@ -182,44 +182,44 @@ export function MarketDetailPage() {
               )}
             </div>
           </div>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(market.status)}`}>
+          <span className={`px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm font-medium whitespace-nowrap ${getStatusColor(market.status)}`}>
             {getStatusLabel(market.status)}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-gray-200">
           <div>
-            <div className="text-sm text-gray-500">Totalt volum</div>
-            <div className="text-lg font-semibold text-gray-900">${market.totalVolume.toFixed(0)}</div>
+            <div className="text-xs sm:text-sm text-gray-500">Totalt volum</div>
+            <div className="text-base sm:text-lg font-semibold text-gray-900">${market.totalVolume.toFixed(0)}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">Avgjørelsesdato</div>
-            <div className="text-lg font-semibold text-gray-900">{formatDate(market.resolutionDate)}</div>
+            <div className="text-xs sm:text-sm text-gray-500">Avgjørelsesdato</div>
+            <div className="text-base sm:text-lg font-semibold text-gray-900">{formatDate(market.resolutionDate)}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">JA-andeler</div>
-            <div className="text-lg font-semibold text-green-600">{market.totalYesShares.toFixed(0)}</div>
+            <div className="text-xs sm:text-sm text-gray-500">JA-andeler</div>
+            <div className="text-base sm:text-lg font-semibold text-green-600">{market.totalYesShares.toFixed(0)}</div>
           </div>
           <div>
-            <div className="text-sm text-gray-500">NEI-andeler</div>
-            <div className="text-lg font-semibold text-red-600">{market.totalNoShares.toFixed(0)}</div>
+            <div className="text-xs sm:text-sm text-gray-500">NEI-andeler</div>
+            <div className="text-base sm:text-lg font-semibold text-red-600">{market.totalNoShares.toFixed(0)}</div>
           </div>
         </div>
       </div>
 
       {/* Resolution Outcome Banner */}
       {market.status === 'resolved' && market.resolutionOutcome && (
-        <div className={`rounded-lg border-2 p-6 mb-6 ${getOutcomeBanner(market.resolutionOutcome)}`}>
-          <div className="flex items-center justify-between">
+        <div className={`rounded-lg border-2 p-4 sm:p-6 mb-6 ${getOutcomeBanner(market.resolutionOutcome)}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
             <div>
               <div className={`text-sm font-medium ${getOutcomeTextColor(market.resolutionOutcome)} opacity-75`}>
                 Utfall
               </div>
-              <div className={`text-3xl font-bold ${getOutcomeTextColor(market.resolutionOutcome)}`}>
+              <div className={`text-2xl sm:text-3xl font-bold ${getOutcomeTextColor(market.resolutionOutcome)}`}>
                 {getOutcomeLabel(market.resolutionOutcome)}
               </div>
             </div>
-            <div className="text-right">
+            <div className="sm:text-right">
               {market.resolvedAt && (
                 <div className={`text-sm ${getOutcomeTextColor(market.resolutionOutcome)} opacity-75`}>
                   Avgjort {formatDate(market.resolvedAt)}
@@ -239,28 +239,28 @@ export function MarketDetailPage() {
       <MarketResolveForm market={market} />
 
       {/* Price Display */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-green-700">JA</span>
-            <span className="text-3xl font-bold text-green-700">{yesPercent}¢</span>
+            <span className="text-2xl sm:text-3xl font-bold text-green-700">{yesPercent}¢</span>
           </div>
-          <div className="w-full bg-green-200 rounded-full h-3">
+          <div className="w-full bg-green-200 rounded-full h-2 sm:h-3">
             <div
-              className="bg-green-600 h-3 rounded-full transition-all"
+              className="bg-green-600 h-2 sm:h-3 rounded-full transition-all"
               style={{ width: `${yesPercent}%` }}
             />
           </div>
         </div>
 
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-red-700">NEI</span>
-            <span className="text-3xl font-bold text-red-700">{noPercent}¢</span>
+            <span className="text-2xl sm:text-3xl font-bold text-red-700">{noPercent}¢</span>
           </div>
-          <div className="w-full bg-red-200 rounded-full h-3">
+          <div className="w-full bg-red-200 rounded-full h-2 sm:h-3">
             <div
-              className="bg-red-600 h-3 rounded-full transition-all"
+              className="bg-red-600 h-2 sm:h-3 rounded-full transition-all"
               style={{ width: `${noPercent}%` }}
             />
           </div>
@@ -283,14 +283,14 @@ export function MarketDetailPage() {
 
 
       {/* Trading Interface */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
         {/* Order Form */}
         <div className="lg:col-span-2">
           <PlaceOrderForm market={market} />
         </div>
 
         {/* Order Book and Participants */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           <OrderBookDisplay marketId={market.id} />
           <MarketParticipants marketId={market.id} />
         </div>

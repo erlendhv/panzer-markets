@@ -15,23 +15,23 @@ export function AuthButton() {
 
   if (user) {
     return (
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <InfoButton />
         <NotificationBell userId={user.uid} />
         <div className="text-right">
-          <div className="text-sm font-medium text-gray-900">{user.displayName}</div>
-          <div className="text-lg font-bold text-green-600">${user.balance.toFixed(2)}</div>
+          <div className="hidden sm:block text-sm font-medium text-gray-900">{user.displayName}</div>
+          <div className="text-sm sm:text-lg font-bold text-green-600">${user.balance.toFixed(2)}</div>
         </div>
         {user.photoURL && (
           <img
             src={user.photoURL}
             alt={user.displayName || 'User'}
-            className="h-10 w-10 rounded-full"
+            className="h-8 w-8 sm:h-10 sm:w-10 rounded-full"
           />
         )}
         <button
           onClick={signOut}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
         >
           Logg ut
         </button>
