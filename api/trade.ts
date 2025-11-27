@@ -154,14 +154,16 @@ async function matchOrder(
 
     // 3. Get opposite side orders (sorted by best price)
     const oppositeSide: OrderSide = orderRequest.side === 'YES' ? 'NO' : 'YES';
-    const complementPrice = 1 - orderRequest.priceLimit;
+    // Round to avoid floating point issues (e.g., 1 - 0.95 = 0.050000000000000044)
+    const complementPrice = Math.round((1 - orderRequest.priceLimit) * 100) / 100;
 
     // For matching: if buying YES at 0.60, we need NO at 0.40 or more (sum >= $1.00)
     // For matching: if buying NO at 0.40, we need YES at 0.60 or more (sum >= $1.00)
+    // Include both 'open' and 'partially_filled' orders (they still have remaining amounts)
     const oppositeOrdersQuery = db.collection('orders')
       .where('marketId', '==', orderRequest.marketId)
       .where('side', '==', oppositeSide)
-      .where('status', '==', 'open')
+      .where('status', 'in', ['open', 'partially_filled'])
       .where('priceLimit', '>=', complementPrice)
       .orderBy('priceLimit', 'desc') // Best prices first (highest willingness to pay)
       .orderBy('createdAt', 'asc'); // FIFO for same price
@@ -198,8 +200,9 @@ async function matchOrder(
     for (const oppositeOrder of oppositeOrders) {
       if (remainingAmount <= 0) break;
 
-      // Check if this order can match
-      const canMatch = (orderRequest.priceLimit + oppositeOrder.priceLimit) >= 1.0;
+      // Check if this order can match (use rounding to avoid floating point issues)
+      const priceSum = Math.round((orderRequest.priceLimit + oppositeOrder.priceLimit) * 100) / 100;
+      const canMatch = priceSum >= 1.0;
 
       if (!canMatch) continue;
 
@@ -208,10 +211,11 @@ async function matchOrder(
       // Example: Maker has NO at $0.45, Taker wants YES at $0.60 limit
       //   executionYesPrice = 1 - 0.45 = $0.55 (taker pays less than limit!)
       //   executionNoPrice = $0.45 (maker pays their price)
+      // Round to avoid floating point issues
       const executionYesPrice = oppositeSide === 'NO'
-        ? (1 - oppositeOrder.priceLimit)  // Derive YES from NO maker's price
+        ? Math.round((1 - oppositeOrder.priceLimit) * 100) / 100  // Derive YES from NO maker's price
         : oppositeOrder.priceLimit;        // Use YES maker's price directly
-      const executionNoPrice = 1 - executionYesPrice;
+      const executionNoPrice = Math.round((1 - executionYesPrice) * 100) / 100;
 
       // Taker gets the better price (derived from maker's price)
       // Maker pays exactly what they asked for (their limit)

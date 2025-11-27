@@ -22,7 +22,7 @@ export function useOrderBook(marketId: string) {
     const q = query(
       collection(db, 'orders'),
       where('marketId', '==', marketId),
-      where('status', '==', 'open'),
+      where('status', 'in', ['open', 'partially_filled']),
       orderBy('priceLimit', 'desc'),
       orderBy('createdAt', 'asc')
     );

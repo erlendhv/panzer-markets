@@ -94,10 +94,11 @@ export function useMarketParticipants(marketId: string | undefined) {
       setLoading(false);
     };
 
-    // Subscribe to orders
+    // Subscribe to orders (only active orders, not cancelled ones)
     const ordersQuery = query(
       collection(db, 'orders'),
-      where('marketId', '==', marketId)
+      where('marketId', '==', marketId),
+      where('status', 'in', ['open', 'partially_filled'])
     );
 
     const unsubscribeOrders = onSnapshot(
