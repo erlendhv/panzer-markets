@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import type { Order, Trade, User } from '../types/firestore';
 
@@ -66,26 +66,37 @@ export function useMarketParticipants(marketId: string | undefined) {
         userAmountsMap.set(trade.noUserId, noExisting);
       }
 
-      // Fetch user data and build participants
-      const participantPromises = Array.from(userAmountsMap.entries()).map(
-        async ([userId, amounts]) => {
-          const userDoc = await getDoc(doc(db, 'users', userId));
-          if (!userDoc.exists()) return null;
+      // Batch fetch user data
+      const userIds = Array.from(userAmountsMap.keys());
+      const userMap = new Map<string, User>();
 
-          const user = userDoc.data() as User;
+      // Firestore 'in' queries limited to 30 items, chunk if needed
+      for (let i = 0; i < userIds.length; i += 30) {
+        const chunk = userIds.slice(i, i + 30);
+        const usersQuery = query(
+          collection(db, 'users'),
+          where('__name__', 'in', chunk)
+        );
+        const snapshot = await getDocs(usersQuery);
+        snapshot.docs.forEach((doc) => {
+          userMap.set(doc.id, { uid: doc.id, ...doc.data() } as User);
+        });
+      }
 
-          return {
-            user,
-            totalAmount: amounts.yesAmount + amounts.noAmount,
-            yesAmount: amounts.yesAmount,
-            noAmount: amounts.noAmount,
-            orderCount: amounts.orderCount,
-          } as MarketParticipant;
-        }
-      );
+      // Build participants from fetched users
+      const validParticipants: MarketParticipant[] = [];
+      for (const [userId, amounts] of userAmountsMap.entries()) {
+        const user = userMap.get(userId);
+        if (!user) continue;
 
-      const results = await Promise.all(participantPromises);
-      const validParticipants = results.filter((p): p is MarketParticipant => p !== null);
+        validParticipants.push({
+          user,
+          totalAmount: amounts.yesAmount + amounts.noAmount,
+          yesAmount: amounts.yesAmount,
+          noAmount: amounts.noAmount,
+          orderCount: amounts.orderCount,
+        });
+      }
 
       // Sort by total amount descending
       validParticipants.sort((a, b) => b.totalAmount - a.totalAmount);

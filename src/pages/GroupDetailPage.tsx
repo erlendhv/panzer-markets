@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { useAuth } from '../hooks/useAuth';
 import { useGroups } from '../contexts/GroupContext';
@@ -48,20 +48,17 @@ export function GroupDetailPage() {
     const fetchGroupAndMembers = async () => {
       try {
         // Fetch group
-        const groupDoc = await getDoc(doc(db, 'groups', groupId));
-        if (!groupDoc.exists()) {
+        const groupQuery = query(
+          collection(db, 'groups'),
+          where('__name__', '==', groupId)
+        );
+        const groupSnapshot = await getDocs(groupQuery);
+        if (groupSnapshot.empty) {
           setLoading(false);
           return;
         }
+        const groupDoc = groupSnapshot.docs[0];
         setGroup({ id: groupDoc.id, ...groupDoc.data() } as Group);
-
-        // Fetch all users
-        const usersSnapshot = await getDocs(collection(db, 'users'));
-        const usersList = usersSnapshot.docs.map(doc => ({
-          uid: doc.id,
-          ...doc.data(),
-        })) as User[];
-        setAllUsers(usersList);
 
         // Fetch members
         const membersQuery = query(
@@ -73,26 +70,6 @@ export function GroupDetailPage() {
           id: doc.id,
           ...doc.data(),
         })) as GroupMember[];
-
-        // Fetch user details for each member
-        const membersWithUsers: MemberWithUser[] = await Promise.all(
-          membersList.map(async (member) => {
-            const userDoc = await getDoc(doc(db, 'users', member.userId));
-            return {
-              ...member,
-              user: userDoc.exists() ? { uid: userDoc.id, ...userDoc.data() } as User : null,
-            };
-          })
-        );
-
-        // Sort: admins first, then by join date
-        membersWithUsers.sort((a, b) => {
-          if (a.role === 'admin' && b.role !== 'admin') return -1;
-          if (a.role !== 'admin' && b.role === 'admin') return 1;
-          return a.joinedAt - b.joinedAt;
-        });
-
-        setMembers(membersWithUsers);
 
         // Fetch pending join requests
         const requestsQuery = query(
@@ -106,18 +83,59 @@ export function GroupDetailPage() {
           ...doc.data(),
         })) as GroupJoinRequest[];
 
-        // Add user info to requests
-        const requestsWithUsers: JoinRequestWithUser[] = await Promise.all(
-          requestsList.map(async (request) => {
-            const userDoc = await getDoc(doc(db, 'users', request.userId));
-            return {
-              ...request,
-              user: userDoc.exists() ? { uid: userDoc.id, ...userDoc.data() } as User : null,
-            };
-          })
-        );
+        // Collect all user IDs we need to fetch (members + requesters)
+        const userIdsToFetch = new Set<string>([
+          ...membersList.map(m => m.userId),
+          ...requestsList.map(r => r.userId),
+        ]);
+
+        // Batch fetch all needed users
+        const userMap = new Map<string, User>();
+        const userIdsArray = [...userIdsToFetch];
+
+        for (let i = 0; i < userIdsArray.length; i += 30) {
+          const chunk = userIdsArray.slice(i, i + 30);
+          const usersQuery = query(
+            collection(db, 'users'),
+            where('__name__', 'in', chunk)
+          );
+          const usersSnapshot = await getDocs(usersQuery);
+          usersSnapshot.docs.forEach((doc) => {
+            userMap.set(doc.id, { uid: doc.id, ...doc.data() } as User);
+          });
+        }
+
+        // Build members with user data
+        const membersWithUsers: MemberWithUser[] = membersList.map((member) => ({
+          ...member,
+          user: userMap.get(member.userId) || null,
+        }));
+
+        // Sort: admins first, then by join date
+        membersWithUsers.sort((a, b) => {
+          if (a.role === 'admin' && b.role !== 'admin') return -1;
+          if (a.role !== 'admin' && b.role === 'admin') return 1;
+          return a.joinedAt - b.joinedAt;
+        });
+
+        setMembers(membersWithUsers);
+
+        // Build requests with user data
+        const requestsWithUsers: JoinRequestWithUser[] = requestsList.map((request) => ({
+          ...request,
+          user: userMap.get(request.userId) || null,
+        }));
 
         setJoinRequests(requestsWithUsers);
+
+        // Fetch all users for invite dropdown (only the ones not already members)
+        // We already have member users, just fetch remaining users
+        const allUsersSnapshot = await getDocs(collection(db, 'users'));
+        const usersList = allUsersSnapshot.docs.map(doc => ({
+          uid: doc.id,
+          ...doc.data(),
+        })) as User[];
+        setAllUsers(usersList);
       } catch (err) {
         console.error('Error fetching group:', err);
       } finally {

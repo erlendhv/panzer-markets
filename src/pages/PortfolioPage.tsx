@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useUserPositions } from "../hooks/useUserPositions";
 import { useUserOrders } from "../hooks/useUserOrders";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { cancelOrder } from "../services/api";
 import { getAvailableBalance, getLockedInOrders } from "../utils/balance";
@@ -26,21 +26,34 @@ export function PortfolioPage() {
 
   useEffect(() => {
     const fetchMarkets = async () => {
-      const marketIds = new Set([
+      const marketIds = [...new Set([
         ...positions.map((p) => p.marketId),
         ...orders.map((o) => o.marketId),
-      ]);
+      ])];
+
+      if (marketIds.length === 0) {
+        setMarkets(new Map());
+        return;
+      }
 
       const marketData = new Map<string, Market>();
-      for (const marketId of marketIds) {
-        const marketDoc = await getDoc(doc(db, "markets", marketId));
-        if (marketDoc.exists()) {
-          marketData.set(marketId, {
-            id: marketDoc.id,
-            ...marketDoc.data(),
+
+      // Firestore 'in' queries limited to 30 items, chunk if needed
+      for (let i = 0; i < marketIds.length; i += 30) {
+        const chunk = marketIds.slice(i, i + 30);
+        const marketsQuery = query(
+          collection(db, "markets"),
+          where("__name__", "in", chunk)
+        );
+        const snapshot = await getDocs(marketsQuery);
+        snapshot.docs.forEach((doc) => {
+          marketData.set(doc.id, {
+            id: doc.id,
+            ...doc.data(),
           } as Market);
-        }
+        });
       }
+
       setMarkets(marketData);
     };
 

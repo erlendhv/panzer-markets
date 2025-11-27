@@ -3,7 +3,7 @@
  * Fetches and manages market data from Firestore
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   collection,
   query,
@@ -32,6 +32,13 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
     : statusOrOptions || {};
 
   const { status, groupId, userGroupIds } = options;
+
+  // Memoize userGroupIds to prevent unnecessary re-subscriptions
+  // Only update when the actual content changes, not the array reference
+  const stableUserGroupIds = useMemo(() => {
+    if (!userGroupIds) return undefined;
+    return [...userGroupIds].sort().join(',');
+  }, [userGroupIds?.length, userGroupIds?.join(',')]);
 
   useEffect(() => {
     const constraints: QueryConstraint[] = [];
@@ -129,7 +136,7 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
     );
 
     return unsubscribe;
-  }, [status, groupId, JSON.stringify(userGroupIds)]);
+  }, [status, groupId, stableUserGroupIds]);
 
   return { markets, loading, error };
 }

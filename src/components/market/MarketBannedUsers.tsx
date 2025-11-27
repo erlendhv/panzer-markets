@@ -44,19 +44,35 @@ export function MarketBannedUsers({ market }: MarketBannedUsersProps) {
           ...doc.data(),
         })) as MarketBannedUser[];
 
-        // Fetch user display names for banned users
-        const bansWithNames = await Promise.all(
-          bans.map(async (ban) => {
-            const userDoc = await getDocs(
-              query(collection(db, 'users'), where('uid', '==', ban.userId))
-            );
-            const userData = userDoc.docs[0]?.data() as User | undefined;
-            return {
-              ...ban,
-              userDisplayName: userData?.displayName || userData?.email || ban.userId,
-            };
-          })
-        );
+        if (bans.length === 0) {
+          setBannedUsers([]);
+          return;
+        }
+
+        // Batch fetch user display names for banned users
+        const userIds = [...new Set(bans.map(b => b.userId))];
+        const userMap = new Map<string, User>();
+
+        // Firestore 'in' queries limited to 30 items, chunk if needed
+        for (let i = 0; i < userIds.length; i += 30) {
+          const chunk = userIds.slice(i, i + 30);
+          const usersQuery = query(
+            collection(db, 'users'),
+            where('__name__', 'in', chunk)
+          );
+          const usersSnapshot = await getDocs(usersQuery);
+          usersSnapshot.docs.forEach((doc) => {
+            userMap.set(doc.id, doc.data() as User);
+          });
+        }
+
+        const bansWithNames = bans.map((ban) => {
+          const userData = userMap.get(ban.userId);
+          return {
+            ...ban,
+            userDisplayName: userData?.displayName || userData?.email || ban.userId,
+          };
+        });
 
         setBannedUsers(bansWithNames);
       },
