@@ -9,6 +9,7 @@ import { CommentsSection, CommentsSectionRef } from '../components/market/Commen
 import { MarketParticipants } from '../components/market/MarketParticipants';
 import { MarketHistoryChart } from "../components/market/MarketHistoryChart";
 import { MarketBannedUsers } from '../components/market/MarketBannedUsers';
+import { MarketResolveForm } from '../components/market/MarketResolveForm';
 import { useComments } from '../hooks/useComments';
 
 
@@ -233,6 +234,9 @@ export function MarketDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Resolve Form (for admins/creators) */}
+      <MarketResolveForm market={market} />
 
       {/* Price Display */}
       <div className="grid grid-cols-2 gap-4 mb-6">

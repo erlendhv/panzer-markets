@@ -240,13 +240,14 @@ export function GroupDetailPage() {
     setActionLoading(targetUserId);
 
     try {
-      const response = await fetch('/api/removeFromGroup', {
+      const response = await fetch('/api/groupAdmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-user-id': user.uid,
         },
         body: JSON.stringify({
+          action: 'removeMember',
           groupId,
           targetUserId,
         }),
@@ -273,13 +274,14 @@ export function GroupDetailPage() {
     setActionLoading(targetUserId);
 
     try {
-      const response = await fetch('/api/updateGroupRole', {
+      const response = await fetch('/api/groupAdmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-user-id': user.uid,
         },
         body: JSON.stringify({
+          action: 'updateRole',
           groupId,
           targetUserId,
           newRole,
@@ -368,13 +370,17 @@ export function GroupDetailPage() {
     setActionLoading('toggleOpen');
 
     try {
-      const response = await fetch('/api/updateGroupSettings', {
+      const response = await fetch('/api/groupAdmin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'x-user-id': user.uid,
         },
-        body: JSON.stringify({ groupId, isOpen: !group.isOpen }),
+        body: JSON.stringify({
+          action: 'updateSettings',
+          groupId,
+          isOpen: !group.isOpen,
+        }),
       });
 
       const result = await response.json();
