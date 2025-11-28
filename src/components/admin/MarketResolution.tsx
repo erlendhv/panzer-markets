@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useMarkets } from '../../hooks/useMarkets';
-import { resolveMarket } from '../../services/api';
+import { resolveMarket, deleteMarket } from '../../services/api';
 import type { Market } from '../../types/firestore';
 
 export function MarketResolution() {
   const { markets, loading } = useMarkets();
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [selectedOutcome, setSelectedOutcome] = useState<Record<string, 'YES' | 'NO' | 'INVALID'>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +40,23 @@ export function MarketResolution() {
       setError(err.message || 'Failed to resolve market');
     } finally {
       setResolvingId(null);
+    }
+  };
+
+  const handleDelete = async (market: Market) => {
+    if (!window.confirm('Er du sikker på at du vil slette dette bettet?')) return;
+    setDeletingId(market.id);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      await deleteMarket(market.id);
+      setSuccess('Bet slettet!');
+      setTimeout(() => setSuccess(null), 5000);
+    } catch (err: any) {
+      setError(err.message || 'Kan ikke slette bet');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -204,6 +222,14 @@ export function MarketResolution() {
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   {resolvingId === market.id ? 'Avgjør...' : 'Avgjør bet'}
+                </button>
+
+                <button
+                  onClick={() => handleDelete(market)}
+                  disabled={deletingId === market.id}
+                  className="px-4 py-2 bg-red-700 text-white rounded-lg text-sm font-medium hover:bg-red-800 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {deletingId === market.id ? 'Sletter...' : 'Slett'}
                 </button>
               </div>
             </div>

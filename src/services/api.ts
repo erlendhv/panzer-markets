@@ -13,6 +13,7 @@ import type {
   ResolveMarketResponse,
   MarketBanRequest,
   MarketBanResponse,
+  DeleteMarketResponse,
 } from '../types/firestore';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
@@ -92,6 +93,26 @@ export async function resolveMarket(request: ResolveMarketRequest): Promise<Reso
   if (!response.ok) {
     const error = await response.json();
     throw new Error(error.error || 'Failed to resolve market');
+  }
+
+  return response.json();
+}
+
+/**
+ * Delete a market (Admin only)
+ */
+export async function deleteMarket(marketId: string): Promise<DeleteMarketResponse> {
+  const headers = await getAuthHeaders();
+
+  const response = await fetch(`${API_BASE_URL}/deleteMarket`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ marketId }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to delete market');
   }
 
   return response.json();
