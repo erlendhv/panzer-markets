@@ -467,8 +467,8 @@ export function GroupDetailPage() {
             {actionLoading === 'join' ? 'Blir med...' : 'Bli med'}
           </button>
         ) : hasPendingRequest ? (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-yellow-800">
+          <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+            <p className="text-yellow-800 dark:text-yellow-300">
               Du har allerede bedt om å bli med. Venter på godkjenning fra admin.
             </p>
           </div>
