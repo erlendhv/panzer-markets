@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useGroups } from '../../contexts/GroupContext';
-import { resolveMarket } from '../../services/api';
+import { resolveMarket, deleteMarket } from '../../services/api';
 import type { Market } from '../../types/firestore';
 
 interface MarketResolveFormProps {
@@ -14,6 +14,7 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
   const [selectedOutcome, setSelectedOutcome] = useState<'YES' | 'NO' | 'INVALID' | null>(null);
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Check permissions: site admin, group admin, or market creator
@@ -49,6 +50,26 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
       setError(err.message || 'Kunne ikke avgjøre beten');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!canResolve) return;
+
+    const confirmed = window.confirm('Er du sikker på at du vil slette denne beten?');
+    if (!confirmed) return;
+
+    setDeleteLoading(true);
+    setError(null);
+
+    try {
+      await deleteMarket(market.id);
+      // After deletion, listeners higher up should notice the market is gone
+      // You might also want to navigate away on the page that uses this component.
+    } catch (err: any) {
+      setError(err.message || 'Kunne ikke slette beten');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -111,6 +132,16 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
         >
           {loading ? 'Avgjør...' : 'Avgjør bet'}
         </button>
+
+        {canResolve && (
+          <button
+            onClick={handleDelete}
+            disabled={deleteLoading}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          >
+            {deleteLoading ? 'Sletter...' : 'Slett bet'}
+          </button>
+        )}
       </div>
 
       <p className="mt-3 text-xs text-gray-500">
