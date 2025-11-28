@@ -145,7 +145,7 @@ export function Sidebar({ mobile, onClose, className }: SidebarProps) {
   }
 
   return (
-    <aside className={`w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-64px)] p-4 ${className || ''}`}>
+    <aside className={`w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 min-h-[calc(100vh-64px)] p-4 ${className || ''}`}>
       <div className="space-y-1">
         {/* All Markets option */}
         <Link
@@ -153,8 +153,8 @@ export function Sidebar({ mobile, onClose, className }: SidebarProps) {
           onClick={() => handleSelectGroup(null)}
           className={`w-full block text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
             selectedGroupId === null
-              ? "bg-blue-50 text-blue-700"
-              : "text-gray-700 hover:bg-gray-100"
+              ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           }`}
         >
           Alle bets
@@ -166,8 +166,8 @@ export function Sidebar({ mobile, onClose, className }: SidebarProps) {
           onClick={() => handleSelectGroup("public")}
           className={`w-full block text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
             selectedGroupId === "public"
-              ? "bg-blue-50 text-blue-700"
-              : "text-gray-700 hover:bg-gray-100"
+              ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           }`}
         >
           Kun offentlige bets
@@ -177,7 +177,7 @@ export function Sidebar({ mobile, onClose, className }: SidebarProps) {
         {myGroups.length > 0 && (
           <>
             <div className="pt-4 pb-1">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">
+              <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3">
                 Mine grupper
               </div>
             </div>
@@ -186,8 +186,8 @@ export function Sidebar({ mobile, onClose, className }: SidebarProps) {
                 key={group.id}
                 className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   selectedGroupId === group.id
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 }`}
               >
                 <Link
@@ -198,12 +198,12 @@ export function Sidebar({ mobile, onClose, className }: SidebarProps) {
                   {group.name}
                 </Link>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
                     {group.memberCount}
                   </span>
                   <Link
                     to={`/groups/${group.id}`}
-                    className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+                    className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded transition-colors"
                     title="Gruppeinnstillinger"
                   >
                     <svg
@@ -236,12 +236,12 @@ export function Sidebar({ mobile, onClose, className }: SidebarProps) {
         {otherGroups.length > 0 && (
           <>
             <div className="pt-4 pb-1">
-              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3">
+              <div className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3">
                 Andre grupper
               </div>
             </div>
             {loading ? (
-              <div className="px-3 py-2 text-sm text-gray-500">Laster...</div>
+              <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">Laster...</div>
             ) : (
               otherGroups.map((group) => {
                 const hasPendingRequest = pendingRequests.has(group.id);
@@ -333,7 +333,7 @@ export function Sidebar({ mobile, onClose, className }: SidebarProps) {
         <div className="pt-4">
           <Link
             to="/groups/create"
-            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           >
             <span className="text-lg">+</span>
             <span>Opprett gruppe</span>

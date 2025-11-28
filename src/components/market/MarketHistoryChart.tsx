@@ -126,8 +126,8 @@ export function MarketHistoryChart({
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
-      <h2 className="text-lg font-semibold mb-2">Prishistorikk</h2>
+    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700 mb-6">
+      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Prishistorikk</h2>
       <Line data={data} options={options} height={80} />
     </div>
   );

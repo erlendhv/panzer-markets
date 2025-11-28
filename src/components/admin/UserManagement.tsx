@@ -130,36 +130,36 @@ export function UserManagement() {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200">
-      <div className="p-6 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-gray-900">Brukeradministrasjon</h2>
-        <p className="text-sm text-gray-600 mt-1">Administrer brukersaldo og tillatelser</p>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Brukeradministrasjon</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Administrer brukersaldo og tillatelser</p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+          <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Bruker
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Saldo
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Portefølje
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Status
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Handlinger
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             {users.map((user) => (
-              <tr key={user.uid} className="hover:bg-gray-50">
+              <tr key={user.uid} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
                     {user.photoURL && (
@@ -170,28 +170,28 @@ export function UserManagement() {
                       />
                     )}
                     <div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">
                         {user.displayName || 'Ukjent'}
                       </div>
-                      <div className="text-sm text-gray-500">{user.email}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
                     </div>
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-semibold text-gray-900">
+                  <div className="text-sm font-semibold text-gray-900 dark:text-white">
                     ${user.balance.toFixed(2)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">${getUserTotalValue(user).toFixed(2)}</div>
+                  <div className="text-sm text-gray-900 dark:text-white">${getUserTotalValue(user).toFixed(2)}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {user.isAdmin ? (
-                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
                       Admin
                     </span>
                   ) : (
-                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
                       Bruker
                     </span>
                   )}
@@ -201,7 +201,7 @@ export function UserManagement() {
                     <button
                       onClick={() => adjustBalance(user.uid, 100)}
                       disabled={adjustingBalance === user.uid}
-                      className="text-green-600 hover:text-green-900 disabled:opacity-50"
+                      className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 disabled:opacity-50"
                       title="Legg til $100"
                     >
                       +$100
@@ -209,14 +209,14 @@ export function UserManagement() {
                     <button
                       onClick={() => adjustBalance(user.uid, -100)}
                       disabled={adjustingBalance === user.uid}
-                      className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                      className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 disabled:opacity-50"
                       title="Trekk fra $100"
                     >
                       -$100
                     </button>
                     <button
                       onClick={() => toggleAdmin(user.uid, user.isAdmin)}
-                      className="ml-2 text-blue-600 hover:text-blue-900"
+                      className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300"
                       title={user.isAdmin ? 'Fjern admin' : 'Gjør til admin'}
                     >
                       {user.isAdmin ? '👤' : '👑'}
@@ -231,7 +231,7 @@ export function UserManagement() {
 
       {users.length === 0 && (
         <div className="p-12 text-center">
-          <p className="text-gray-600">Ingen brukere funnet</p>
+          <p className="text-gray-600 dark:text-gray-400">Ingen brukere funnet</p>
         </div>
       )}
     </div>

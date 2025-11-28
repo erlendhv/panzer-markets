@@ -143,9 +143,9 @@ export function MarketBannedUsers({ market }: MarketBannedUsersProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Utestengte brukere</h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Utestengte brukere</h3>
         {!showForm && (
           <button
             onClick={() => setShowForm(true)}
@@ -157,27 +157,27 @@ export function MarketBannedUsers({ market }: MarketBannedUsersProps) {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded text-sm text-red-800 dark:text-red-300">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded text-sm text-green-800">
+        <div className="mb-4 p-3 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded text-sm text-green-800 dark:text-green-300">
           {success}
         </div>
       )}
 
       {showForm && (
-        <form onSubmit={handleBan} className="mb-4 p-4 bg-gray-50 rounded-lg">
+        <form onSubmit={handleBan} className="mb-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Velg bruker
             </label>
             <select
               value={selectedUserId}
               onChange={(e) => setSelectedUserId(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               required
             >
               <option value="">Velg en bruker...</option>
@@ -189,7 +189,7 @@ export function MarketBannedUsers({ market }: MarketBannedUsersProps) {
             </select>
           </div>
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Grunn for utestengelse
             </label>
             <input
@@ -197,7 +197,7 @@ export function MarketBannedUsers({ market }: MarketBannedUsersProps) {
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder="f.eks. Direkte involvert i utfallet"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400"
               required
             />
           </div>
@@ -216,7 +216,7 @@ export function MarketBannedUsers({ market }: MarketBannedUsersProps) {
                 setSelectedUserId('');
                 setReason('');
               }}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-300 dark:hover:bg-gray-500"
             >
               Avbryt
             </button>
@@ -225,25 +225,25 @@ export function MarketBannedUsers({ market }: MarketBannedUsersProps) {
       )}
 
       {bannedUsers.length === 0 ? (
-        <p className="text-sm text-gray-500">Ingen utestengte brukere for denne beten.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Ingen utestengte brukere for denne beten.</p>
       ) : (
         <ul className="space-y-2">
           {bannedUsers.map((ban) => (
             <li
               key={ban.id}
-              className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg"
+              className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg"
             >
               <div>
-                <div className="font-medium text-gray-900">{ban.userDisplayName}</div>
-                <div className="text-sm text-gray-600">Grunn: {ban.reason}</div>
-                <div className="text-xs text-gray-500">
+                <div className="font-medium text-gray-900 dark:text-white">{ban.userDisplayName}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Grunn: {ban.reason}</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
                   Utestengt {new Date(ban.bannedAt).toLocaleDateString('nb-NO')}
                 </div>
               </div>
               <button
                 onClick={() => handleUnban(ban.userId)}
                 disabled={loading}
-                className="px-3 py-1 text-sm bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                className="px-3 py-1 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50"
               >
                 Fjern
               </button>

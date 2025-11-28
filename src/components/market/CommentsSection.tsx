@@ -79,8 +79,8 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
     };
 
     return (
-      <div ref={divRef} className="bg-white rounded-lg border border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
+      <div ref={divRef} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
           Kommentarer ({comments.length})
         </h2>
 
@@ -94,8 +94,8 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
                   className="w-10 h-10 rounded-full"
                 />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                  <span className="text-gray-600 text-sm font-medium">
+                <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center">
+                  <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">
                     {user.displayName?.charAt(0) || user.email?.charAt(0) || '?'}
                   </span>
                 </div>
@@ -106,19 +106,19 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
                   onChange={(e) => setNewComment(e.target.value)}
                   placeholder="Skriv noe slemt..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
                 />
 
                 {/* Attached timestamp display with remove button */}
                 {attachedTimestamp && (
-                  <div className="mt-1 flex items-center justify-between bg-green-50 border border-green-300 px-2 py-1 rounded text-green-800 text-sm">
+                  <div className="mt-1 flex items-center justify-between bg-green-50 dark:bg-green-900/30 border border-green-300 dark:border-green-700 px-2 py-1 rounded text-green-800 dark:text-green-300 text-sm">
                     <span>
                       {new Date(attachedTimestamp).toLocaleString()}
                     </span>
                     <button
                       type="button"
                       onClick={() => setAttachedTimestamp(null)}
-                      className="ml-2 text-green-700 font-bold hover:text-green-900"
+                      className="ml-2 text-green-700 dark:text-green-400 font-bold hover:text-green-900 dark:hover:text-green-200"
                     >
                       ×
                     </button>
@@ -138,8 +138,8 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
             </div>
           </form>
         ) : (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg text-center">
-            <p className="text-gray-600">Logg inn for å skrive noe slemt</p>
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg text-center">
+            <p className="text-gray-600 dark:text-gray-400">Logg inn for å skrive noe slemt</p>
           </div>
         )}
 
@@ -149,7 +149,7 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
           </div>
         ) : comments.length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">Ingen kommentarer ennå. Skriv noe</p>
+            <p className="text-gray-500 dark:text-gray-400">Ingen kommentarer ennå. Skriv noe</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -162,19 +162,19 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
                     className="w-10 h-10 rounded-full"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
-                    <span className="text-gray-600 text-sm font-medium">
+                  <div className="w-10 h-10 rounded-full bg-gray-300 dark:bg-gray-600 flex items-center justify-center flex-shrink-0">
+                    <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">
                       {comment.userDisplayName?.charAt(0) || '?'}
                     </span>
                   </div>
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-gray-900 dark:text-white">
                       {comment.userDisplayName || 'Anonym'}
                     </span>
                     <span
-                      className="text-sm text-gray-500 cursor-pointer hover:underline"
+                      className="text-sm text-gray-500 dark:text-gray-400 cursor-pointer hover:underline"
                       onClick={() => {
                         if (comment.referencedTimestamp && onTimestampClick) {
                           onTimestampClick(comment.referencedTimestamp);
@@ -188,12 +188,12 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
                   {/* Show referenced timestamp inside comment in green and clickable */}
                 {comment.referencedTimestamp && (
                 <div
-                    className="text-green-700 text-sm cursor-pointer hover:underline mt-1"
+                    className="text-green-700 dark:text-green-400 text-sm cursor-pointer hover:underline mt-1"
                     onClick={() => onTimestampClick?.(comment.referencedTimestamp!)}
                 >
                     {comment.referencedTimestamp && (
                         <div
-                            className="text-green-700 text-sm cursor-pointer hover:underline mt-1"
+                            className="text-green-700 dark:text-green-400 text-sm cursor-pointer hover:underline mt-1"
                             onClick={() => onTimestampClick?.(comment.referencedTimestamp!)}
                         >
                             {new Date(comment.referencedTimestamp).toLocaleString()}
@@ -202,7 +202,7 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
                 </div>
                 )}
 
-                  <p className="mt-1 text-gray-700 whitespace-pre-wrap break-words">
+                  <p className="mt-1 text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">
                     {comment.content}
                   </p>
 
@@ -210,7 +210,7 @@ export const CommentsSection = forwardRef<CommentsSectionRef, CommentsSectionPro
                     <button
                       onClick={() => handleDelete(comment.id)}
                       disabled={deletingId === comment.id}
-                      className="mt-1 text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+                      className="mt-1 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 disabled:opacity-50"
                     >
                       {deletingId === comment.id ? 'Sletter...' : 'Slett'}
                     </button>

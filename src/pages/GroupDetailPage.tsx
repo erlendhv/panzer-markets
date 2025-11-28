@@ -439,9 +439,9 @@ export function GroupDetailPage() {
 
   if (!group) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Gruppe ikke funnet</h2>
-        <p className="text-gray-600">Denne gruppen eksisterer ikke eller du har ikke tilgang.</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Gruppe ikke funnet</h2>
+        <p className="text-gray-600 dark:text-gray-400">Denne gruppen eksisterer ikke eller du har ikke tilgang.</p>
       </div>
     );
   }
@@ -449,12 +449,12 @@ export function GroupDetailPage() {
   // Non-member view - show request to join
   if (!isMember && !user?.isAdmin) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">{group.name}</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{group.name}</h2>
         {group.description && (
-          <p className="text-gray-600 mb-4">{group.description}</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{group.description}</p>
         )}
-        <p className="text-sm text-gray-500 mb-6">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
           {group.memberCount} {group.memberCount === 1 ? 'medlem' : 'medlemmer'}
         </p>
 
@@ -488,11 +488,11 @@ export function GroupDetailPage() {
         {/* Join request modal */}
         {showJoinModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 text-left">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">Be om å bli med i {group.name}</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md mx-4 text-left">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Be om å bli med i {group.name}</h3>
               <form onSubmit={handleRequestToJoin}>
                 <div className="mb-4">
-                  <label htmlFor="joinMessage" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="joinMessage" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Skriv en melding til admin
                   </label>
                   <textarea
@@ -503,12 +503,12 @@ export function GroupDetailPage() {
                     required
                     maxLength={500}
                     rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
                   />
-                  <p className="text-xs text-gray-500 mt-1">{joinMessage.length}/500 tegn</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{joinMessage.length}/500 tegn</p>
                 </div>
                 {joinError && (
-                  <p className="text-sm text-red-600 mb-4">{joinError}</p>
+                  <p className="text-sm text-red-600 dark:text-red-400 mb-4">{joinError}</p>
                 )}
                 <div className="flex gap-3 justify-end">
                   <button
@@ -518,7 +518,7 @@ export function GroupDetailPage() {
                       setJoinMessage('');
                       setJoinError(null);
                     }}
-                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                   >
                     Avbryt
                   </button>
@@ -541,14 +541,14 @@ export function GroupDetailPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">{group.name}</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">{group.name}</h1>
         {group.description && (
-          <p className="text-gray-600">{group.description}</p>
+          <p className="text-gray-600 dark:text-gray-400">{group.description}</p>
         )}
-        <p className="text-sm text-gray-500 mt-2">
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
           {group.memberCount} {group.memberCount === 1 ? 'medlem' : 'medlemmer'}
           {group.isOpen && (
-            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+            <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300">
               Åpen gruppe
             </span>
           )}
@@ -557,8 +557,8 @@ export function GroupDetailPage() {
 
       {/* Site admin join button (when not a member) */}
       {!isMember && user?.isAdmin && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <p className="text-blue-800 mb-4">
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-6 mb-6">
+          <p className="text-blue-800 dark:text-blue-200 mb-4">
             Du er ikke medlem av denne gruppen. Som admin kan du legge deg selv til.
           </p>
           <button
@@ -573,14 +573,14 @@ export function GroupDetailPage() {
 
       {/* Group settings (for admins) */}
       {isAdmin && (
-        <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Gruppeinnstillinger</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Gruppeinnstillinger</h2>
           <div className="flex items-center justify-between">
             <div>
-              <p className="font-medium text-gray-900">
+              <p className="font-medium text-gray-900 dark:text-white">
                 {group.isOpen ? 'Åpen gruppe' : 'Lukket gruppe'}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {group.isOpen
                   ? 'Alle kan bli med uten godkjenning'
                   : 'Nye medlemmer må godkjennes av admin'}
@@ -605,8 +605,8 @@ export function GroupDetailPage() {
 
       {/* Invite form (for members) */}
       {isMember && (
-      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Inviter medlem</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Inviter medlem</h2>
 
         {/* Search for users */}
         <div className="mb-4">
@@ -617,13 +617,13 @@ export function GroupDetailPage() {
               onChange={(e) => setUserSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleUserSearch())}
               placeholder="Søk etter brukernavn..."
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
             />
             <button
               type="button"
               onClick={handleUserSearch}
               disabled={isSearching || userSearchQuery.length < 2}
-              className="px-4 py-2 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 disabled:bg-gray-50 disabled:text-gray-400 transition-colors"
+              className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400 transition-colors"
             >
               {isSearching ? 'Søker...' : 'Søk'}
             </button>
@@ -632,7 +632,7 @@ export function GroupDetailPage() {
 
         {/* Search results */}
         {userSearchResults.length > 0 && (
-          <div className="mb-4 border border-gray-200 rounded-lg divide-y">
+          <div className="mb-4 border border-gray-200 dark:border-gray-700 rounded-lg divide-y dark:divide-gray-700">
             {userSearchResults.map((u) => (
               <button
                 key={u.uid}
@@ -641,18 +641,18 @@ export function GroupDetailPage() {
                   setSelectedUser(u);
                   setUserSearchResults([]);
                 }}
-                className={`w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center gap-3 ${
-                  selectedUser?.uid === u.uid ? 'bg-blue-50' : ''
+                className={`w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-3 ${
+                  selectedUser?.uid === u.uid ? 'bg-blue-50 dark:bg-blue-900/30' : ''
                 }`}
               >
                 {u.photoURL ? (
                   <img src={u.photoURL} alt="" className="w-8 h-8 rounded-full" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500 text-sm">{u.displayName?.[0] || '?'}</span>
+                  <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                    <span className="text-gray-500 dark:text-gray-300 text-sm">{u.displayName?.[0] || '?'}</span>
                   </div>
                 )}
-                <span className="font-medium text-gray-900">{u.displayName || u.email}</span>
+                <span className="font-medium text-gray-900 dark:text-white">{u.displayName || u.email}</span>
               </button>
             ))}
           </div>
@@ -661,19 +661,19 @@ export function GroupDetailPage() {
         {/* Selected user + invite button */}
         {selectedUser && (
           <form onSubmit={handleInvite} className="flex items-center gap-4">
-            <div className="flex-1 flex items-center gap-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex-1 flex items-center gap-3 px-4 py-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg">
               {selectedUser.photoURL ? (
                 <img src={selectedUser.photoURL} alt="" className="w-8 h-8 rounded-full" />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500 text-sm">{selectedUser.displayName?.[0] || '?'}</span>
+                <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                  <span className="text-gray-500 dark:text-gray-300 text-sm">{selectedUser.displayName?.[0] || '?'}</span>
                 </div>
               )}
-              <span className="font-medium text-gray-900">{selectedUser.displayName || selectedUser.email}</span>
+              <span className="font-medium text-gray-900 dark:text-white">{selectedUser.displayName || selectedUser.email}</span>
               <button
                 type="button"
                 onClick={() => setSelectedUser(null)}
-                className="ml-auto text-gray-400 hover:text-gray-600"
+                className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
               >
                 ✕
               </button>
@@ -699,15 +699,15 @@ export function GroupDetailPage() {
 
       {/* Pending join requests (for admins) */}
       {isAdmin && joinRequests.length > 0 && (
-        <div className="bg-white rounded-lg border border-yellow-200 p-6 mb-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-yellow-200 dark:border-yellow-800 p-6 mb-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">
             Ventende forespørsler ({joinRequests.length})
           </h2>
           <div className="space-y-4">
             {joinRequests.map((request) => (
               <div
                 key={request.id}
-                className="py-4 border-b border-gray-100 last:border-0"
+                className="py-4 border-b border-gray-100 dark:border-gray-700 last:border-0"
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-3">
@@ -718,17 +718,17 @@ export function GroupDetailPage() {
                         className="w-10 h-10 rounded-full"
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                        <span className="text-gray-500 text-sm">
+                      <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                        <span className="text-gray-500 dark:text-gray-300 text-sm">
                           {request.user?.displayName?.[0] || '?'}
                         </span>
                       </div>
                     )}
                     <div>
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 dark:text-white">
                         {request.user?.displayName || request.user?.email || 'Ukjent bruker'}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 dark:text-gray-400">
                         Ba om å bli med {new Date(request.requestedAt).toLocaleDateString('nb-NO')}
                       </div>
                     </div>
@@ -751,8 +751,8 @@ export function GroupDetailPage() {
                   </div>
                 </div>
                 {request.message && (
-                  <div className="ml-13 pl-13 bg-gray-50 rounded-lg p-3 mt-2">
-                    <p className="text-sm text-gray-600 italic">"{request.message}"</p>
+                  <div className="ml-13 pl-13 bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mt-2">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 italic">"{request.message}"</p>
                   </div>
                 )}
               </div>
@@ -762,13 +762,13 @@ export function GroupDetailPage() {
       )}
 
       {/* Members list */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 mb-6">
-        <h2 className="text-lg font-bold text-gray-900 mb-4">Medlemmer</h2>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 mb-6">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Medlemmer</h2>
         <div className="space-y-3">
           {members.map((member) => (
             <div
               key={member.id}
-              className="flex items-center justify-between py-3 border-b border-gray-100 last:border-0"
+              className="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0"
             >
               <div className="flex items-center gap-3">
                 {member.user?.photoURL ? (
@@ -778,22 +778,22 @@ export function GroupDetailPage() {
                     className="w-10 h-10 rounded-full"
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-gray-500 text-sm">
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
+                    <span className="text-gray-500 dark:text-gray-300 text-sm">
                       {member.user?.displayName?.[0] || '?'}
                     </span>
                   </div>
                 )}
                 <div>
-                  <div className="font-medium text-gray-900">
+                  <div className="font-medium text-gray-900 dark:text-white">
                     {member.user?.displayName || member.user?.email || 'Ukjent bruker'}
                     {member.userId === user?.uid && (
-                      <span className="ml-2 text-xs text-gray-500">(deg)</span>
+                      <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">(deg)</span>
                     )}
                   </div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
                     {member.role === 'admin' ? (
-                      <span className="text-blue-600 font-medium">Admin</span>
+                      <span className="text-blue-600 dark:text-blue-400 font-medium">Admin</span>
                     ) : (
                       'Medlem'
                     )}
@@ -837,9 +837,9 @@ export function GroupDetailPage() {
 
       {/* Leave group (only for members) */}
       {isMember && (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Forlat gruppe</h2>
-          <p className="text-gray-600 mb-4">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">Forlat gruppe</h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">
             Hvis du forlater gruppen vil du ikke lenger se bets i denne gruppen.
           </p>
           <button

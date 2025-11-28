@@ -1,6 +1,7 @@
 import { useAuth } from '../hooks/useAuth';
 import { NotificationBell } from './NotificationBell';
 import { InfoButton } from './InfoButton';
+import { ThemeToggle } from './ThemeToggle';
 
 export function AuthButton() {
   const { user, loading, error, signInWithGoogle, signOut } = useAuth();
@@ -17,10 +18,11 @@ export function AuthButton() {
     return (
       <div className="flex items-center gap-2 sm:gap-4">
         <InfoButton />
+        <ThemeToggle />
         <NotificationBell userId={user.uid} />
         <div className="text-right">
-          <div className="hidden sm:block text-sm font-medium text-gray-900">{user.displayName}</div>
-          <div className="text-sm sm:text-lg font-bold text-green-600">${user.balance.toFixed(2)}</div>
+          <div className="hidden sm:block text-sm font-medium text-gray-900 dark:text-white">{user.displayName}</div>
+          <div className="text-sm sm:text-lg font-bold text-green-600 dark:text-green-400">${user.balance.toFixed(2)}</div>
         </div>
         {user.photoURL && (
           <img
@@ -31,7 +33,7 @@ export function AuthButton() {
         )}
         <button
           onClick={signOut}
-          className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+          className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
         >
           Logg ut
         </button>

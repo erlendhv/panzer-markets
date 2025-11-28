@@ -70,9 +70,9 @@ export function ProposePage() {
 
   if (!user) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Innlogging kreves</h2>
-        <p className="text-gray-600">Logg inn for å foreslå en bet.</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Innlogging kreves</h2>
+        <p className="text-gray-600 dark:text-gray-400">Logg inn for å foreslå en bet.</p>
       </div>
     );
   }
@@ -162,21 +162,21 @@ export function ProposePage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
           {isGroupMarket ? 'Opprett en bet' : 'Foreslå en bet'}
         </h1>
-        <p className="text-gray-600">
+        <p className="text-gray-600 dark:text-gray-400">
           {isGroupMarket
             ? 'Opprett en ny bet i gruppen din. Den blir aktiv med en gang.'
             : 'Foreslå en ny offentlig bet. En admin vil se på forslaget ditt.'}
         </p>
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Question */}
           <div>
-            <label htmlFor="question" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="question" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Spørsmål
             </label>
             <input
@@ -187,16 +187,16 @@ export function ProposePage() {
               value={formData.question}
               onChange={handleChange}
               placeholder="Vil Linn Emilie bli forlovet innen 2026?"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Gjør det klart, spesifikt, og mulig å svare med JA eller NEI.
             </p>
           </div>
 
           {/* Description */}
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Beskrivelse
             </label>
             <textarea
@@ -206,16 +206,16 @@ export function ProposePage() {
               value={formData.description}
               onChange={handleChange}
               placeholder="Forklar konteksten og hvordan beten skal avgjøres..."
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Inkluder kontekst og klare avgjørelseskriterier.
             </p>
           </div>
 
           {/* Resolution Date */}
           <div>
-            <label htmlFor="resolutionDate" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="resolutionDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Foreslått avgjørelsesdato
             </label>
             <input
@@ -225,16 +225,16 @@ export function ProposePage() {
               required
               value={formData.resolutionDate}
               onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             />
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Når skal denne beten avgjøres?
             </p>
           </div>
 
           {/* Group Selection */}
           <div>
-            <label htmlFor="groupId" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="groupId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Gruppe
             </label>
             <select
@@ -243,7 +243,7 @@ export function ProposePage() {
               value={formData.groupId}
               onChange={handleChange}
               disabled={loadingGroups}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             >
               <option value="">Offentlig (krever godkjenning)</option>
               {userGroups.map((group) => (
@@ -252,7 +252,7 @@ export function ProposePage() {
                 </option>
               ))}
             </select>
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               {isGroupMarket
                 ? 'Beten blir synlig kun for gruppemedlemmer.'
                 : 'Offentlige bets må godkjennes av en admin først.'}
@@ -262,7 +262,7 @@ export function ProposePage() {
           {/* Initial Yes Price (only for group markets) */}
           {isGroupMarket && (
             <div>
-              <label htmlFor="initialYesPrice" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="initialYesPrice" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Startpris JA
               </label>
               <input
@@ -274,9 +274,9 @@ export function ProposePage() {
                 step="0.01"
                 value={formData.initialYesPrice}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               />
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Hva tror du sannsynligheten for JA er? (0.01 - 0.99)
               </p>
             </div>
@@ -313,9 +313,9 @@ export function ProposePage() {
         </form>
 
         {/* Info Box */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Gode forslag er:</h3>
-          <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
+        <div className="mt-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <h3 className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-2">Gode forslag er:</h3>
+          <ul className="text-sm text-blue-700 dark:text-blue-200 space-y-1 list-disc list-inside">
             <li>Klare og entydige (kan besvares med JA eller NEI)</li>
             <li>Har verifiserbare avgjørelseskriterier</li>
             <li>Morsomt for gjengen</li>

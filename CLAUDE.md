@@ -5,6 +5,7 @@ This file provides guidance for Claude Code when working with this repository.
 ## Project Overview
 
 Panzer Markets is a friends-only prediction market application using virtual currency. It implements a binary order book system similar to Polymarket where:
+
 - Every market creates two assets: YES_SHARE and NO_SHARE
 - Core invariant: 1 YES Share + 1 NO Share = $1.00 (always)
 - Users place limit orders; the matching engine executes trades when complementary orders satisfy the $1.00 peg
@@ -71,17 +72,21 @@ panzer-markets/
 ## Architecture Notes
 
 ### Order Matching Engine (`api/trade.ts`)
+
 The most complex part of the system. Uses Firestore transactions to prevent race conditions:
+
 - Matches orders when `Bid_YES + Bid_NO >= $1.00`
 - Mints YES/NO shares to respective users
 - Tracks positions with cost basis for P&L calculation
 
 ### State Management
+
 - React Context for shared state (GroupContext, UserCacheContext)
 - Custom hooks with Firestore `onSnapshot` for real-time updates
 - No external state management library
 
 ### API Authentication
+
 - User ID passed via `x-user-id` header
 - Firebase Admin SDK validates and processes requests
 
@@ -115,6 +120,45 @@ The most complex part of the system. Uses Firestore transactions to prevent race
 - Norwegian language UI strings
 - ESLint with TypeScript support
 
+## Dark Mode
+
+All components must support dark mode. Theme state is managed via `ThemeContext` with the `darkMode: 'class'` Tailwind strategy.
+
+**Common patterns:**
+
+```
+# Backgrounds
+bg-white dark:bg-gray-800
+
+# Borders
+border-gray-200 dark:border-gray-700
+
+# Text
+text-gray-900 dark:text-white
+text-gray-600 dark:text-gray-400
+text-gray-500 dark:text-gray-400
+
+# Form inputs
+bg-white dark:bg-gray-700 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600
+
+# Status badges
+bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300
+bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300
+bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300
+bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300
+
+# Hover states
+hover:bg-gray-100 dark:hover:bg-gray-700
+hover:text-gray-900 dark:hover:text-white
+```
+
+**When adding UI:**
+
+1. Always include `dark:` variants for backgrounds, borders, and text colors
+2. Use `gray-800` for dark mode card/container backgrounds
+3. Use `gray-700` for dark mode input backgrounds and secondary elements
+4. Use opacity variants (e.g., `dark:bg-green-900/50`) for colored badges
+
 ## Responsive Design
 
 All UI must work on both mobile and desktop. Tailwind uses mobile-first breakpoints: base classes apply to all sizes, prefixes (`sm:`, `md:`) add styles for larger screens.
@@ -122,6 +166,7 @@ All UI must work on both mobile and desktop. Tailwind uses mobile-first breakpoi
 **Breakpoint:** `md:` (768px) is the primary mobile/desktop breakpoint.
 
 **Common patterns:**
+
 ```
 # Typography - smaller base, larger on desktop
 text-xl sm:text-2xl
@@ -137,10 +182,12 @@ md:hidden          # Mobile only
 ```
 
 **Layout components:**
+
 - `Sidebar.tsx` - Has `mobile` prop for drawer variant with larger touch targets
 - `Layout.tsx` - Hamburger menu + slide-out drawer on mobile, fixed sidebar on desktop
 
 **When adding UI:**
+
 1. Write base styles that work on mobile
 2. Add `sm:` or `md:` prefixes to enhance for desktop
 3. Ensure touch targets are large enough on mobile (min ~44px)
@@ -149,6 +196,7 @@ md:hidden          # Mobile only
 ## Environment Variables
 
 Frontend (prefixed with `VITE_`):
+
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`
 - `VITE_FIREBASE_PROJECT_ID`
@@ -157,6 +205,8 @@ Frontend (prefixed with `VITE_`):
 - `VITE_FIREBASE_APP_ID`
 
 Backend (Firebase Admin):
+
 - `FIREBASE_PROJECT_ID`
 - `FIREBASE_CLIENT_EMAIL`
 - `FIREBASE_PRIVATE_KEY`
+

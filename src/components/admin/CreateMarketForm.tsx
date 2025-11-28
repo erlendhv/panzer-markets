@@ -82,13 +82,13 @@ export function CreateMarketForm() {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Opprett ny bet</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Opprett ny bet</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Question */}
         <div>
-          <label htmlFor="question" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="question" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Spørsmål
           </label>
           <input
@@ -99,13 +99,13 @@ export function CreateMarketForm() {
             value={formData.question}
             onChange={handleChange}
             placeholder="Vil Linn Emilie bli forlovet innen 2026?"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
           />
         </div>
 
         {/* Description */}
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Beskrivelse
           </label>
           <textarea
@@ -115,13 +115,13 @@ export function CreateMarketForm() {
             value={formData.description}
             onChange={handleChange}
             placeholder="Flere detaljer om beten og avgjørelseskriterier..."
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
           />
         </div>
 
         {/* Resolution Date */}
         <div>
-          <label htmlFor="resolutionDate" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="resolutionDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Avgjørelsesdato
           </label>
           <input
@@ -131,13 +131,13 @@ export function CreateMarketForm() {
             required
             value={formData.resolutionDate}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
         </div>
 
         {/* Initial Price */}
         <div>
-          <label htmlFor="initialYesPrice" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="initialYesPrice" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Startpris JA (0-1)
           </label>
           <input
@@ -150,9 +150,9 @@ export function CreateMarketForm() {
             step="0.01"
             value={formData.initialYesPrice}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             NEI-pris blir {(1 - parseFloat(formData.initialYesPrice || '0.5')).toFixed(2)}
           </p>
         </div>
@@ -182,9 +182,9 @@ export function CreateMarketForm() {
       </form>
 
       {/* Info Box */}
-      <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">Om startprising</h3>
-        <p className="text-sm text-blue-700">
+      <div className="mt-6 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+        <h3 className="text-sm font-medium text-blue-900 dark:text-blue-300 mb-2">Om startprising</h3>
+        <p className="text-sm text-blue-700 dark:text-blue-200">
           Startprisen setter startoddsene. For eksempel betyr 0.50 50/50 odds.
           Brukere kan legge inn ordre på hvilken som helst pris, og systemet vil utføre handler
           når JA + NEI priser = $1.00.

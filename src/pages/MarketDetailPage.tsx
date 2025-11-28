@@ -108,13 +108,13 @@ export function MarketDetailPage() {
   const getStatusColor = (status: Market['status']) => {
     switch (status) {
       case 'open':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300';
       case 'closed':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300';
       case 'resolved':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
     }
   };
 
@@ -160,23 +160,23 @@ export function MarketDetailPage() {
   return (
     <div>
       {/* Market Header */}
-      <div className="bg-white rounded-lg border border-gray-200 p-4 sm:p-6 mb-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 mb-6">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">{market.question}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">{market.question}</h1>
             {market.description && (
-              <p className="text-sm sm:text-base text-gray-600">{market.description}</p>
+              <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">{market.description}</p>
             )}
             <div className="mt-2">
               {group ? (
                 <Link
                   to={`/groups/${group.id}`}
-                  className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                  className="inline-flex items-center gap-1 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                 >
-                  <span className="text-gray-500">Gruppe:</span> {group.name}
+                  <span className="text-gray-500 dark:text-gray-400">Gruppe:</span> {group.name}
                 </Link>
               ) : (
-                <span className="inline-flex items-center gap-1 text-sm text-gray-500">
+                <span className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                   Offentlig marked
                 </span>
               )}
@@ -187,22 +187,22 @@ export function MarketDetailPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-gray-200">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div>
-            <div className="text-xs sm:text-sm text-gray-500">Totalt volum</div>
-            <div className="text-base sm:text-lg font-semibold text-gray-900">${market.totalVolume.toFixed(0)}</div>
+            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Totalt volum</div>
+            <div className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">${market.totalVolume.toFixed(0)}</div>
           </div>
           <div>
-            <div className="text-xs sm:text-sm text-gray-500">Avgjørelsesdato</div>
-            <div className="text-base sm:text-lg font-semibold text-gray-900">{formatDate(market.resolutionDate)}</div>
+            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Avgjørelsesdato</div>
+            <div className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">{formatDate(market.resolutionDate)}</div>
           </div>
           <div>
-            <div className="text-xs sm:text-sm text-gray-500">JA-andeler</div>
-            <div className="text-base sm:text-lg font-semibold text-green-600">{market.totalYesShares.toFixed(0)}</div>
+            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">JA-andeler</div>
+            <div className="text-base sm:text-lg font-semibold text-green-600 dark:text-green-400">{market.totalYesShares.toFixed(0)}</div>
           </div>
           <div>
-            <div className="text-xs sm:text-sm text-gray-500">NEI-andeler</div>
-            <div className="text-base sm:text-lg font-semibold text-red-600">{market.totalNoShares.toFixed(0)}</div>
+            <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">NEI-andeler</div>
+            <div className="text-base sm:text-lg font-semibold text-red-600 dark:text-red-400">{market.totalNoShares.toFixed(0)}</div>
           </div>
         </div>
       </div>
@@ -240,12 +240,12 @@ export function MarketDetailPage() {
 
       {/* Price Display */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 sm:p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-green-700">JA</span>
-            <span className="text-2xl sm:text-3xl font-bold text-green-700">{yesPercent}¢</span>
+            <span className="text-sm font-medium text-green-700 dark:text-green-400">JA</span>
+            <span className="text-2xl sm:text-3xl font-bold text-green-700 dark:text-green-400">{yesPercent}¢</span>
           </div>
-          <div className="w-full bg-green-200 rounded-full h-2 sm:h-3">
+          <div className="w-full bg-green-200 dark:bg-green-800 rounded-full h-2 sm:h-3">
             <div
               className="bg-green-600 h-2 sm:h-3 rounded-full transition-all"
               style={{ width: `${yesPercent}%` }}
@@ -253,12 +253,12 @@ export function MarketDetailPage() {
           </div>
         </div>
 
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6">
+        <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 sm:p-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-red-700">NEI</span>
-            <span className="text-2xl sm:text-3xl font-bold text-red-700">{noPercent}¢</span>
+            <span className="text-sm font-medium text-red-700 dark:text-red-400">NEI</span>
+            <span className="text-2xl sm:text-3xl font-bold text-red-700 dark:text-red-400">{noPercent}¢</span>
           </div>
-          <div className="w-full bg-red-200 rounded-full h-2 sm:h-3">
+          <div className="w-full bg-red-200 dark:bg-red-800 rounded-full h-2 sm:h-3">
             <div
               className="bg-red-600 h-2 sm:h-3 rounded-full transition-all"
               style={{ width: `${noPercent}%` }}

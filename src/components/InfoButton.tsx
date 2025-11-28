@@ -20,7 +20,7 @@ export function InfoButton() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+        className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
         aria-label="Informasjon"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -34,18 +34,18 @@ export function InfoButton() {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-[80vh] overflow-y-auto">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">Hvordan fungerer Panzer Markets?</h3>
+        <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50 max-h-[80vh] overflow-y-auto">
+          <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Hvordan fungerer Panzer Markets?</h3>
           </div>
 
           <div className="p-4 space-y-4">
             {/* Betting explanation */}
             <section>
-              <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                 <span className="text-green-600">📈</span> Slik fungerer betting
               </h4>
-              <div className="text-sm text-gray-600 space-y-2">
+              <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                 <p>
                   <strong>Predikasjonsmarked:</strong> Du vedder på om noe kommer til å skje (JA) eller ikke (NEI).
                 </p>
@@ -66,10 +66,10 @@ export function InfoButton() {
 
             {/* Order types */}
             <section>
-              <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                 <span className="text-blue-600">💱</span> Ordretyper
               </h4>
-              <div className="text-sm text-gray-600 space-y-2">
+              <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                 <p>
                   <strong>Markedsordre:</strong> Kjøp eller selg til beste tilgjengelige pris umiddelbart.
                 </p>
@@ -81,10 +81,10 @@ export function InfoButton() {
 
             {/* What you can do */}
             <section>
-              <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                 <span className="text-purple-600">🎯</span> Hva kan du gjøre?
               </h4>
-              <div className="text-sm text-gray-600 space-y-2">
+              <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                 <p>
                   <strong>Bets:</strong> Se og delta i aktive bets. Kjøp og selg andeler basert på dine spådommer.
                 </p>
@@ -105,10 +105,10 @@ export function InfoButton() {
 
             {/* Groups */}
             <section>
-              <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
                 <span className="text-orange-600">👥</span> Grupper
               </h4>
-              <div className="text-sm text-gray-600 space-y-2">
+              <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
                 <p>
                   <strong>Offentlig:</strong> Alle kan se og delta i offentlige bets.
                 </p>
@@ -122,11 +122,11 @@ export function InfoButton() {
             </section>
 
             {/* Tips */}
-            <section className="bg-blue-50 rounded-lg p-3">
-              <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+            <section className="bg-blue-50 dark:bg-blue-900/30 rounded-lg p-3">
+              <h4 className="font-semibold text-blue-900 dark:text-blue-300 mb-2 flex items-center gap-2">
                 <span>💡</span> Tips
               </h4>
-              <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+              <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1 list-disc list-inside">
                 <li>Start med små innsatser for å lære systemet</li>
                 <li>Følg med på ordreboken for å se markedsaktivitet</li>
                 <li>Bruk limitordrer for bedre kontroll over prisen</li>

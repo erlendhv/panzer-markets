@@ -23,8 +23,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col">
+      <nav className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4 md:gap-8">
@@ -32,7 +32,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               {user && (
                 <button
                   onClick={() => setSidebarOpen(!sidebarOpen)}
-                  className="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100"
+                  className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                   aria-label="Toggle menu"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,7 +45,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 </button>
               )}
               <Link to="/" className="flex items-center gap-2">
-                <div className="text-xl md:text-2xl font-bold text-gray-900">Panzer Markets</div>
+                <div className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">Panzer Markets</div>
               </Link>
               {user && (
                 <div className="hidden md:flex gap-1">
@@ -57,8 +57,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                         to={item.href}
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                           isActive
-                            ? 'bg-blue-50 text-blue-700'
-                            : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                       >
                         {item.name}
@@ -82,9 +82,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             onClick={() => setSidebarOpen(false)}
           />
           {/* Drawer content */}
-          <div className="relative bg-white w-72 max-w-[85vw] h-full overflow-y-auto shadow-xl">
+          <div className="relative bg-white dark:bg-gray-800 w-72 max-w-[85vw] h-full overflow-y-auto shadow-xl">
             {/* Mobile nav links */}
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="space-y-1">
                 {navigation.map((item) => {
                   const isActive = location.pathname === item.href;
@@ -95,8 +95,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       onClick={() => setSidebarOpen(false)}
                       className={`block px-4 py-3 rounded-lg text-base font-medium transition-colors ${
                         isActive
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                     >
                       {item.name}
@@ -109,13 +109,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Sidebar mobile onClose={() => setSidebarOpen(false)} />
 
             {/* Mobile logout button */}
-            <div className="p-4 border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => {
                   signOut(auth);
                   setSidebarOpen(false);
                 }}
-                className="w-full px-4 py-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50"
+                className="w-full px-4 py-3 text-base font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600"
               >
                 Logg ut
               </button>
@@ -132,7 +132,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </main>
       </div>
 
-      <footer className="bg-gray-100 border-t border-gray-200 py-4 text-center text-sm text-gray-500">
+      <footer className="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
         Panzer Markets © 2026 · Laget av Plomma og Kringla
       </footer>
     </div>

@@ -64,11 +64,11 @@ export function PortfolioPage() {
 
   if (!user) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
-        <h2 className="text-xl font-bold text-gray-900 mb-2">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-8 text-center">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
           Innlogging kreves
         </h2>
-        <p className="text-gray-600">Logg inn for å se dine bets.</p>
+        <p className="text-gray-600 dark:text-gray-400">Logg inn for å se dine bets.</p>
       </div>
     );
   }
@@ -123,36 +123,36 @@ export function PortfolioPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">Dine bets</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">Dine bets</h1>
 
         {/* Portfolio Summary */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Tilgjengelig saldo</div>
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="text-sm text-gray-500 dark:text-gray-400">Tilgjengelig saldo</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
               ${user.balance.toFixed(2)}
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">I åpne ordre</div>
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="text-sm text-gray-500 dark:text-gray-400">I åpne ordre</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
               ${getLockedInOrders(orders).toFixed(2)}
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">I åpne trades/bets</div>
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="text-sm text-gray-500 dark:text-gray-400">I åpne trades/bets</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
               ${totalValue.toFixed(2)}
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Total verdi</div>
-            <div className="text-2xl font-bold text-gray-900">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="text-sm text-gray-500 dark:text-gray-400">Total verdi</div>
+            <div className="text-2xl font-bold text-gray-900 dark:text-white">
               ${(user.balance + totalValue).toFixed(2)}
             </div>
           </div>
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="text-sm text-gray-500">Urealisert gevinst/tap</div>
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="text-sm text-gray-500 dark:text-gray-400">Urealisert gevinst/tap</div>
             <div
               className={`text-2xl font-bold ${unrealizedPnL >= 0 ? "text-green-600" : "text-red-600"}`}
             >
@@ -163,14 +163,14 @@ export function PortfolioPage() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 mb-6">
+      <div className="border-b border-gray-200 dark:border-gray-700 mb-6">
         <nav className="-mb-px flex space-x-8">
           <button
             onClick={() => setActiveTab("positions")}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === "positions"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
             }`}
           >
             Posisjoner ({positions.length})
@@ -179,8 +179,8 @@ export function PortfolioPage() {
             onClick={() => setActiveTab("orders")}
             className={`py-4 px-1 border-b-2 font-medium text-sm ${
               activeTab === "orders"
-                ? "border-blue-500 text-blue-600"
-                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600"
             }`}
           >
             Ordre ({openOrders.length} åpne)
@@ -249,8 +249,8 @@ function PositionsView({
             onClick={() => onFilterChange("open")}
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
               filter === "open"
-                ? "bg-blue-100 text-blue-700"
-                : "bg-gray-100 text-gray-700"
+                ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
             }`}
           >
             Åpne ({openPositions.length})
@@ -259,8 +259,8 @@ function PositionsView({
             onClick={() => onFilterChange("resolved")}
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
               filter === "resolved"
-                ? "bg-blue-100 text-blue-700"
-                : "bg-gray-100 text-gray-700"
+                ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
             }`}
           >
             Avgjort ({resolvedPositions.length})
@@ -269,8 +269,8 @@ function PositionsView({
       </div>
 
       {positionsToShow.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <p className="text-gray-600">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <p className="text-gray-600 dark:text-gray-400">
             {filter === "open"
               ? "Ingen åpne posisjoner. Begynn å bette for å bygge opp porteføljen din!"
               : "Ingen avsluttede posisjoner."}
@@ -291,13 +291,13 @@ function PositionsView({
             return (
               <div
                 key={position.id}
-                className="bg-white rounded-lg border border-gray-200 p-6"
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex-1">
                     <Link
                       to={`/market/${position.marketId}`}
-                      className="text-lg font-semibold text-gray-900 hover:text-blue-600"
+                      className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       {market.question}
                     </Link>
@@ -305,8 +305,8 @@ function PositionsView({
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
                       market.status === "open"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-gray-100 text-gray-800"
+                        ? "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300"
+                        : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
                     }`}
                   >
                     {market.status}
@@ -315,37 +315,37 @@ function PositionsView({
 
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
                   <div>
-                    <div className="text-gray-500">JA-andeler</div>
-                    <div className="font-semibold text-green-700">
+                    <div className="text-gray-500 dark:text-gray-400">JA-andeler</div>
+                    <div className="font-semibold text-green-700 dark:text-green-400">
                       {position.yesShares.toFixed(2)}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       ${yesValue.toFixed(2)} verdi
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-500">NEI-andeler</div>
-                    <div className="font-semibold text-red-700">
+                    <div className="text-gray-500 dark:text-gray-400">NEI-andeler</div>
+                    <div className="font-semibold text-red-700 dark:text-red-400">
                       {position.noShares.toFixed(2)}
                     </div>
-                    <div className="text-xs text-gray-500">
+                    <div className="text-xs text-gray-500 dark:text-gray-400">
                       ${noValue.toFixed(2)} verdi
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Total kostnad</div>
-                    <div className="font-semibold text-gray-900">
+                    <div className="text-gray-500 dark:text-gray-400">Total kostnad</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">
                       ${totalCost.toFixed(2)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Nåværende verdi</div>
-                    <div className="font-semibold text-gray-900">
+                    <div className="text-gray-500 dark:text-gray-400">Nåværende verdi</div>
+                    <div className="font-semibold text-gray-900 dark:text-white">
                       ${totalValue.toFixed(2)}
                     </div>
                   </div>
                   <div>
-                    <div className="text-gray-500">Gevinst/tap</div>
+                    <div className="text-gray-500 dark:text-gray-400">Gevinst/tap</div>
                     <div
                       className={`font-semibold ${pnl >= 0 ? "text-green-600" : "text-red-600"}`}
                     >
@@ -399,8 +399,8 @@ function OrdersView({
             onClick={() => setShowClosed(false)}
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
               !showClosed
-                ? "bg-blue-100 text-blue-700"
-                : "bg-gray-100 text-gray-700"
+                ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
             }`}
           >
             Åpne ordre ({openOrders.length})
@@ -409,8 +409,8 @@ function OrdersView({
             onClick={() => setShowClosed(true)}
             className={`px-4 py-2 rounded-lg text-sm font-medium ${
               showClosed
-                ? "bg-blue-100 text-blue-700"
-                : "bg-gray-100 text-gray-700"
+                ? "bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300"
+                : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
             }`}
           >
             Historikk ({closedOrders.length})
@@ -419,8 +419,8 @@ function OrdersView({
       </div>
 
       {ordersToShow.length === 0 ? (
-        <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-          <p className="text-gray-600">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+          <p className="text-gray-600 dark:text-gray-400">
             Ingen {showClosed ? "lukkede" : "åpne"} ordre
           </p>
         </div>
@@ -433,38 +433,38 @@ function OrdersView({
             return (
               <div
                 key={order.id}
-                className="bg-white rounded-lg border border-gray-200 p-4"
+                className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
               >
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <Link
                       to={`/market/${order.marketId}`}
-                      className="font-medium text-gray-900 hover:text-blue-600"
+                      className="font-medium text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       {market.question}
                     </Link>
                     <div className="flex items-center gap-4 mt-2 text-sm">
                       <span
-                        className={`font-medium ${order.side === "YES" ? "text-green-700" : "text-red-700"}`}
+                        className={`font-medium ${order.side === "YES" ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}
                       >
                         {order.side}
                       </span>
-                      <span className="text-gray-600">
+                      <span className="text-gray-600 dark:text-gray-400">
                         @ ${order.priceLimit.toFixed(2)}
                       </span>
-                      <span className="text-gray-600">
+                      <span className="text-gray-600 dark:text-gray-400">
                         ${order.remainingAmount.toFixed(2)} / $
                         {order.originalAmount.toFixed(2)}
                       </span>
                       <span
                         className={`px-2 py-1 rounded-full text-xs ${
                           order.status === "open"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300"
                             : order.status === "filled"
-                              ? "bg-blue-100 text-blue-800"
+                              ? "bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300"
                               : order.status === "partially_filled"
-                                ? "bg-yellow-100 text-yellow-800"
-                                : "bg-gray-100 text-gray-800"
+                                ? "bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300"
+                                : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300"
                         }`}
                       >
                         {order.status}
@@ -475,7 +475,7 @@ function OrdersView({
                     <button
                       onClick={() => onCancelOrder(order.id)}
                       disabled={cancellingOrderId === order.id}
-                      className="ml-4 px-3 py-1 text-sm text-red-600 hover:text-red-800 disabled:opacity-50"
+                      className="ml-4 px-3 py-1 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 disabled:opacity-50"
                     >
                       {cancellingOrderId === order.id
                         ? "Kansellerer..."

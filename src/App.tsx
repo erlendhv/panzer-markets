@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { GroupProvider } from './contexts/GroupContext'
 import { UserCacheProvider } from './contexts/UserCacheContext'
+import { ThemeProvider } from './contexts/ThemeContext'
 import { MarketsPage } from './pages/MarketsPage'
 import { MarketDetailPage } from './pages/MarketDetailPage'
 import { PortfolioPage } from './pages/PortfolioPage'
@@ -13,6 +14,7 @@ import { GroupDetailPage } from './pages/GroupDetailPage'
 
 function App() {
   return (
+    <ThemeProvider>
     <Router>
       <UserCacheProvider>
       <GroupProvider>
@@ -31,6 +33,7 @@ function App() {
       </GroupProvider>
       </UserCacheProvider>
     </Router>
+    </ThemeProvider>
   )
 }
 

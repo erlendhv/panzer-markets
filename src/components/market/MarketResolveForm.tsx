@@ -74,11 +74,11 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-orange-200 p-6 mb-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Avgjør bet</h3>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-orange-200 dark:border-orange-700 p-6 mb-6">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Avgjør bet</h3>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded text-sm text-red-800">
+        <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded text-sm text-red-800 dark:text-red-300">
           {error}
         </div>
       )}
@@ -90,7 +90,7 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedOutcome === 'YES'
                 ? 'bg-green-600 text-white'
-                : 'bg-green-100 text-green-700 hover:bg-green-200'
+                : 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900'
             }`}
           >
             JA
@@ -100,7 +100,7 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedOutcome === 'NO'
                 ? 'bg-red-600 text-white'
-                : 'bg-red-100 text-red-700 hover:bg-red-200'
+                : 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900'
             }`}
           >
             NEI
@@ -110,7 +110,7 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
             className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
               selectedOutcome === 'INVALID'
                 ? 'bg-gray-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
             }`}
           >
             UGYLDIG
@@ -122,7 +122,7 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
           placeholder="Notat (valgfritt)"
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
         />
 
         <button
@@ -144,7 +144,7 @@ export function MarketResolveForm({ market }: MarketResolveFormProps) {
         )}
       </div>
 
-      <p className="mt-3 text-xs text-gray-500">
+      <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
         {isSiteAdmin && 'Du er site-admin.'}
         {!isSiteAdmin && isGroupAdmin && 'Du er gruppeadmin.'}
         {!isSiteAdmin && !isGroupAdmin && isCreator && 'Du opprettet denne beten.'}

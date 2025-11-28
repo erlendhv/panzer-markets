@@ -32,16 +32,16 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
 
   if (!user) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <p className="text-gray-600 text-center">Logg inn for å legge inn ordre</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <p className="text-gray-600 dark:text-gray-400 text-center">Logg inn for å legge inn ordre</p>
       </div>
     );
   }
 
   if (market.status !== 'open') {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <p className="text-gray-600 text-center">Denne beten er {market.status === 'closed' ? 'lukket' : market.status === 'resolved' ? 'avgjort' : market.status}</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <p className="text-gray-600 dark:text-gray-400 text-center">Denne beten er {market.status === 'closed' ? 'lukket' : market.status === 'resolved' ? 'avgjort' : market.status}</p>
       </div>
     );
   }
@@ -98,13 +98,13 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
   const oppositePrice = (1 - parseFloat(priceLimit || '0')).toFixed(2);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Legg inn ordre</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Legg inn ordre</h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Side Selection */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Hvilket utfall tror du på?
           </label>
           <div className="grid grid-cols-2 gap-4">
@@ -113,8 +113,8 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
               onClick={() => handleSideChange('YES')}
               className={`p-4 rounded-lg border-2 font-medium transition-all ${
                 side === 'YES'
-                  ? 'border-green-500 bg-green-50 text-green-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
               }`}
             >
               <div className="text-2xl mb-1">✓</div>
@@ -125,8 +125,8 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
               onClick={() => handleSideChange('NO')}
               className={`p-4 rounded-lg border-2 font-medium transition-all ${
                 side === 'NO'
-                  ? 'border-red-500 bg-red-50 text-red-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  ? 'border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                  : 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:border-gray-300'
               }`}
             >
               <div className="text-2xl mb-1">✗</div>
@@ -137,7 +137,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
 
         {/* Price Limit */}
         <div>
-          <label htmlFor="priceLimit" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="priceLimit" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Makspris per andel (0-1)
           </label>
           <input
@@ -148,10 +148,10 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
             step="0.01"
             value={priceLimit}
             onChange={(e) => setPriceLimit(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             required
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Du er villig til å betale opptil ${priceLimit} per {side === 'YES' ? 'JA' : 'NEI'}-andel.
             Dette betyr at du trenger en {side === 'YES' ? 'NEI' : 'JA'}-kjøper til ${oppositePrice} eller mer for å matche.
           </p>
@@ -159,7 +159,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
 
         {/* Amount */}
         <div>
-          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="amount" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Beløp (USD)
           </label>
           <input
@@ -170,21 +170,21 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
             step="1"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
             required
           />
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Tilgjengelig saldo: ${getAvailableBalance(user.balance, orders).toFixed(2)}
           </p>
         </div>
 
         {/* Estimated Shares */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <div className="text-sm text-blue-900 mb-1">Estimerte andeler hvis fylt:</div>
-          <div className="text-2xl font-bold text-blue-900">
+        <div className="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+          <div className="text-sm text-blue-900 dark:text-blue-300 mb-1">Estimerte andeler hvis fylt:</div>
+          <div className="text-2xl font-bold text-blue-900 dark:text-blue-300">
             {estimatedShares.toFixed(2)} {side === 'YES' ? 'JA' : 'NEI'}-andeler
           </div>
-          <div className="text-sm text-blue-700 mt-2">
+          <div className="text-sm text-blue-700 dark:text-blue-200 mt-2">
             Potensiell gevinst hvis {side === 'YES' ? 'JA' : 'NEI'} vinner: ${(estimatedShares - parseFloat(amount)).toFixed(2)}
           </div>
         </div>

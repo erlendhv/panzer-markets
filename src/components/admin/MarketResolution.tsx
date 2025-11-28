@@ -92,23 +92,23 @@ export function MarketResolution() {
   }
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Avgjør bets</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Avgjør bets</h2>
 
       {error && (
-        <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
-          <p className="text-sm text-red-800">{error}</p>
+        <div className="mb-4 bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <p className="text-sm text-red-800 dark:text-red-300">{error}</p>
         </div>
       )}
 
       {success && (
-        <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
-          <p className="text-sm text-green-800">{success}</p>
+        <div className="mb-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          <p className="text-sm text-green-800 dark:text-green-300">{success}</p>
         </div>
       )}
 
       {resolvableMarkets.length === 0 ? (
-        <p className="text-gray-600 text-center py-8">Ingen bets å avgjøre</p>
+        <p className="text-gray-600 dark:text-gray-400 text-center py-8">Ingen bets å avgjøre</p>
       ) : (
         <div className="space-y-6">
           {resolvableMarkets.map((market) => (
@@ -116,29 +116,29 @@ export function MarketResolution() {
               key={market.id}
               className={`border rounded-lg p-4 ${
                 isPastResolutionDate(market.resolutionDate)
-                  ? 'border-yellow-300 bg-yellow-50'
-                  : 'border-gray-200'
+                  ? 'border-yellow-300 dark:border-yellow-700 bg-yellow-50 dark:bg-yellow-900/30'
+                  : 'border-gray-200 dark:border-gray-700'
               }`}
             >
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{market.question}</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">{market.question}</h3>
                   {market.description && (
-                    <p className="text-sm text-gray-600 mt-1">{market.description}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{market.description}</p>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${
                       market.status === 'open'
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300'
                     }`}
                   >
                     {getStatusLabel(market.status)}
                   </span>
                   {isPastResolutionDate(market.resolutionDate) && (
-                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300">
                       Forfalt
                     </span>
                   )}
@@ -147,28 +147,28 @@ export function MarketResolution() {
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                 <div>
-                  <span className="text-gray-500">Avgjørelsesdato:</span>
-                  <div className="font-medium">{formatDate(market.resolutionDate)}</div>
+                  <span className="text-gray-500 dark:text-gray-400">Avgjørelsesdato:</span>
+                  <div className="font-medium text-gray-900 dark:text-white">{formatDate(market.resolutionDate)}</div>
                 </div>
                 <div>
-                  <span className="text-gray-500">Volum:</span>
-                  <div className="font-medium">${market.totalVolume.toFixed(0)}</div>
+                  <span className="text-gray-500 dark:text-gray-400">Volum:</span>
+                  <div className="font-medium text-gray-900 dark:text-white">${market.totalVolume.toFixed(0)}</div>
                 </div>
                 <div>
-                  <span className="text-gray-500">JA-pris:</span>
-                  <div className="font-medium text-green-600">
+                  <span className="text-gray-500 dark:text-gray-400">JA-pris:</span>
+                  <div className="font-medium text-green-600 dark:text-green-400">
                     {Math.round(market.lastTradedPrice.yes * 100)}¢
                   </div>
                 </div>
                 <div>
-                  <span className="text-gray-500">NEI-pris:</span>
-                  <div className="font-medium text-red-600">
+                  <span className="text-gray-500 dark:text-gray-400">NEI-pris:</span>
+                  <div className="font-medium text-red-600 dark:text-red-400">
                     {Math.round((1 - market.lastTradedPrice.yes) * 100)}¢
                   </div>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-200">
+              <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
                 <div className="flex gap-2">
                   <button
                     onClick={() =>
@@ -177,7 +177,7 @@ export function MarketResolution() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedOutcome[market.id] === 'YES'
                         ? 'bg-green-600 text-white'
-                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                        : 'bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900'
                     }`}
                   >
                     JA
@@ -189,7 +189,7 @@ export function MarketResolution() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedOutcome[market.id] === 'NO'
                         ? 'bg-red-600 text-white'
-                        : 'bg-red-100 text-red-700 hover:bg-red-200'
+                        : 'bg-red-100 dark:bg-red-900/50 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900'
                     }`}
                   >
                     NEI
@@ -201,7 +201,7 @@ export function MarketResolution() {
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedOutcome[market.id] === 'INVALID'
                         ? 'bg-gray-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                     }`}
                   >
                     UGYLDIG
@@ -213,7 +213,7 @@ export function MarketResolution() {
                   placeholder="Notat (valgfritt)"
                   value={notes[market.id] || ''}
                   onChange={(e) => setNotes({ ...notes, [market.id]: e.target.value })}
-                  className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 min-w-[200px] px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
                 />
 
                 <button

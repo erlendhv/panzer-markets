@@ -115,8 +115,8 @@ export function ProposalReview() {
 
   if (proposals.length === 0) {
     return (
-      <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-        <p className="text-gray-600">Ingen ventende forslag</p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-12 text-center">
+        <p className="text-gray-600 dark:text-gray-400">Ingen ventende forslag</p>
       </div>
     );
   }
@@ -151,13 +151,13 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
   const [rejectionReason, setRejectionReason] = useState('');
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6">
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
       <div className="mb-4">
-        <h3 className="text-lg font-bold text-gray-900 mb-2">{proposal.question}</h3>
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">{proposal.question}</h3>
         {proposal.description && (
-          <p className="text-gray-600 text-sm mb-4">{proposal.description}</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{proposal.description}</p>
         )}
-        <div className="flex items-center gap-6 text-sm text-gray-500">
+        <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
           <div>
             <span className="font-medium">Foreslått avgjørelse:</span> {formatDate(proposal.suggestedResolutionDate)}
           </div>
@@ -168,9 +168,9 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
       </div>
 
       {!showRejectForm ? (
-        <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
+        <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex-1">
-            <label htmlFor={`price-${proposal.id}`} className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor={`price-${proposal.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Startpris JA
             </label>
             <input
@@ -181,7 +181,7 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
               step="0.01"
               value={initialPrice}
               onChange={(e) => setInitialPrice(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               disabled={processing}
             />
           </div>
@@ -203,15 +203,15 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
           </div>
         </div>
       ) : (
-        <div className="pt-4 border-t border-gray-200">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Årsak til avslag
           </label>
           <textarea
             value={rejectionReason}
             onChange={(e) => setRejectionReason(e.target.value)}
             rows={2}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm mb-2"
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm mb-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400"
             placeholder="Forklar hvorfor dette forslaget blir avslått..."
           />
           <div className="flex gap-2">
@@ -232,7 +232,7 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
                 setRejectionReason('');
               }}
               disabled={processing}
-              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 text-sm font-medium"
+              className="px-4 py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-500 text-sm font-medium"
             >
               Avbryt
             </button>
