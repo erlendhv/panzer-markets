@@ -10,12 +10,14 @@ export interface MarketParticipant {
   yesAmount: number;
   noAmount: number;
   orderCount: number;
+  tradeCount: number;
 }
 
 interface UserAmounts {
   yesAmount: number;
   noAmount: number;
   orderCount: number;
+  tradeCount: number;
 }
 
 export function useMarketParticipants(marketId: string | undefined) {
@@ -48,7 +50,7 @@ export function useMarketParticipants(marketId: string | undefined) {
 
       // Add orders to the map
       for (const order of orders) {
-        const existing = userAmountsMap.get(order.userId) || { yesAmount: 0, noAmount: 0, orderCount: 0 };
+        const existing = userAmountsMap.get(order.userId) || { yesAmount: 0, noAmount: 0, orderCount: 0, tradeCount: 0 };
         if (order.side === 'YES') {
           existing.yesAmount += order.originalAmount;
         } else {
@@ -61,13 +63,15 @@ export function useMarketParticipants(marketId: string | undefined) {
       // Add trades to the map (for users who took the other side)
       for (const trade of trades) {
         // Add YES user's trade amount
-        const yesExisting = userAmountsMap.get(trade.yesUserId) || { yesAmount: 0, noAmount: 0, orderCount: 0 };
+        const yesExisting = userAmountsMap.get(trade.yesUserId) || { yesAmount: 0, noAmount: 0, orderCount: 0, tradeCount: 0 };
         yesExisting.yesAmount += trade.yesPrice * trade.sharesTraded;
+        yesExisting.tradeCount += 1;
         userAmountsMap.set(trade.yesUserId, yesExisting);
 
         // Add NO user's trade amount
-        const noExisting = userAmountsMap.get(trade.noUserId) || { yesAmount: 0, noAmount: 0, orderCount: 0 };
+        const noExisting = userAmountsMap.get(trade.noUserId) || { yesAmount: 0, noAmount: 0, orderCount: 0, tradeCount: 0 };
         noExisting.noAmount += trade.noPrice * trade.sharesTraded;
+        noExisting.tradeCount += 1;
         userAmountsMap.set(trade.noUserId, noExisting);
       }
 
@@ -87,6 +91,7 @@ export function useMarketParticipants(marketId: string | undefined) {
           yesAmount: amounts.yesAmount,
           noAmount: amounts.noAmount,
           orderCount: amounts.orderCount,
+          tradeCount: amounts.tradeCount,
         });
       }
 

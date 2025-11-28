@@ -57,7 +57,11 @@ export function MarketParticipants({ marketId }: MarketParticipantsProps) {
                   {participant.user.displayName || 'Ukjent'}
                 </div>
                 <div className="text-xs text-gray-500 dark:text-gray-400">
-                  {participant.orderCount} ordre{participant.orderCount !== 1 ? 'r' : ''}
+                  {participant.orderCount > 0 && participant.tradeCount > 0
+                    ? `${participant.orderCount} ordre${participant.orderCount !== 1 ? 'r' : ''}, ${participant.tradeCount} trade${participant.tradeCount !== 1 ? 's' : ''}`
+                    : participant.orderCount > 0
+                      ? `${participant.orderCount} ordre${participant.orderCount !== 1 ? 'r' : ''}`
+                      : `${participant.tradeCount} trade${participant.tradeCount !== 1 ? 's' : ''}`}
                 </div>
               </div>
             </div>
