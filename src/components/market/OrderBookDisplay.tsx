@@ -1,4 +1,4 @@
-import { useOrderBook } from '../../hooks/useOrderBook';
+import { useOrderBook } from "../../hooks/useOrderBook";
 
 interface OrderBookDisplayProps {
   marketId: string;
@@ -11,7 +11,7 @@ interface OrderBookDisplayProps {
  *   - Cost for NO buyer = Shares × (1 - P) = A × (1 - P) / P
  */
 function calculateCostToMatch(amount: number, price: number): number {
-  return amount * (1 - price) / price;
+  return (amount * (1 - price)) / price;
 }
 
 export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
@@ -20,7 +20,8 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
   if (loading) {
     return (
       <div className="bg-white rounded-lg border border-gray-200 p-6">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Ordrebok</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-1">Åpne ordre</h3>
+        <p className="text-xs text-gray-500 mb-4">Ordre som venter på å bli matchet med en motpart</p>
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
@@ -32,27 +33,37 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-6">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">Ordrebok</h3>
+      <h3 className="text-lg font-bold text-gray-900 mb-1">Åpne ordre</h3>
+      <p className="text-xs text-gray-500 mb-4">Ordre som venter på å bli matchet med en motpart</p>
 
       {!hasOrders ? (
         <div className="text-center py-8">
           <p className="text-sm text-gray-500">Ingen åpne ordre</p>
-          <p className="text-xs text-gray-400 mt-1">Vær den første til å legge inn en ordre!</p>
+          <p className="text-xs text-gray-400 mt-1">
+            Vær den første til å legge inn en ordre!
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
           {/* YES Orders */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-green-700">JA-ordre</span>
-              <span className="text-xs text-gray-500">{orderBook.yes.length} nivåer</span>
+              <span className="text-sm font-medium text-green-700">
+                JA-ordre
+              </span>
+              <span className="text-xs text-gray-500">
+                {orderBook.yes.length} nivåer
+              </span>
             </div>
             {orderBook.yes.length === 0 ? (
               <div className="text-sm text-gray-400 italic">Ingen JA-ordre</div>
             ) : (
               <div className="space-y-1">
                 {orderBook.yes.slice(0, 5).map((entry, idx) => {
-                  const costToMatch = calculateCostToMatch(entry.totalAmount, entry.price);
+                  const costToMatch = calculateCostToMatch(
+                    entry.totalAmount,
+                    entry.price,
+                  );
                   return (
                     <div
                       key={idx}
@@ -65,7 +76,10 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
                         <span className="text-gray-600">
                           ${entry.totalAmount.toFixed(0)}
                         </span>
-                        <span className="text-xs text-gray-400 ml-2" title="Beløp NEI-kjøper må betale for å matche">
+                        <span
+                          className="text-xs text-gray-400 ml-2"
+                          title="Beløp NEI-kjøper må betale for å matche"
+                        >
                           (NEI: ${costToMatch.toFixed(0)})
                         </span>
                       </div>
@@ -84,15 +98,24 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
           {/* NO Orders */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-red-700">NEI-ordre</span>
-              <span className="text-xs text-gray-500">{orderBook.no.length} nivåer</span>
+              <span className="text-sm font-medium text-red-700">
+                NEI-ordre
+              </span>
+              <span className="text-xs text-gray-500">
+                {orderBook.no.length} nivåer
+              </span>
             </div>
             {orderBook.no.length === 0 ? (
-              <div className="text-sm text-gray-400 italic">Ingen NEI-ordre</div>
+              <div className="text-sm text-gray-400 italic">
+                Ingen NEI-ordre
+              </div>
             ) : (
               <div className="space-y-1">
                 {orderBook.no.slice(0, 5).map((entry, idx) => {
-                  const costToMatch = calculateCostToMatch(entry.totalAmount, entry.price);
+                  const costToMatch = calculateCostToMatch(
+                    entry.totalAmount,
+                    entry.price,
+                  );
                   return (
                     <div
                       key={idx}
@@ -105,7 +128,10 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
                         <span className="text-gray-600">
                           ${entry.totalAmount.toFixed(0)}
                         </span>
-                        <span className="text-xs text-gray-400 ml-2" title="Beløp JA-kjøper må betale for å matche">
+                        <span
+                          className="text-xs text-gray-400 ml-2"
+                          title="Beløp JA-kjøper må betale for å matche"
+                        >
                           (JA: ${costToMatch.toFixed(0)})
                         </span>
                       </div>
@@ -127,7 +153,7 @@ export function OrderBookDisplay({ marketId }: OrderBookDisplayProps) {
       <div className="mt-4 pt-4 border-t border-gray-200">
         <div className="flex items-center justify-between text-xs text-gray-500">
           <span>Pris</span>
-          <span>Beløp (kostnad for å matche)</span>
+          <span>Beløp betalt (din kostnad for å matche)</span>
         </div>
       </div>
     </div>
