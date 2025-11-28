@@ -56,8 +56,8 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
         // because Firestore doesn't support OR queries across different fields easily
         // We'll filter in the snapshot callback
       } else if (groupId === 'public') {
-        // "Public only" view - filter client-side for markets without a groupId
-        // We'll filter in the snapshot callback
+        // "Public only" view - query directly for markets without a groupId
+        constraints.push(where('groupId', '==', null));
       } else {
         // Specific group selected
         constraints.push(where('groupId', '==', groupId));
@@ -91,13 +91,6 @@ export function useMarkets(statusOrOptions?: MarketStatus | UseMarketsOptions) {
             }
             // Group markets only if user is a member
             return userGroupIds.includes(market.groupId);
-          });
-        }
-
-        // Client-side filtering for "public only" view
-        if (groupId === 'public') {
-          marketData = marketData.filter((market) => {
-            return market.groupId === null || market.groupId === undefined;
           });
         }
 
