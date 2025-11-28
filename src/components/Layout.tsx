@@ -23,7 +23,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -124,13 +124,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       )}
 
-      <div className="flex">
+      <div className="flex flex-1">
         {/* Desktop sidebar - hidden on mobile */}
         {user && <Sidebar className="hidden md:block" />}
         <main className="flex-1 px-4 sm:px-6 lg:px-8 py-8 max-w-6xl">
           {children}
         </main>
       </div>
+
+      <footer className="bg-gray-100 border-t border-gray-200 py-4 text-center text-sm text-gray-500">
+        Panzer Markets © 2026 · Laget av Plomma og Kringla
+      </footer>
     </div>
   );
 }
