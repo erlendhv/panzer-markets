@@ -126,7 +126,7 @@ export function GroupDetailPage() {
     fetchGroupAndMembers();
   }, [groupId, getUsers]);
 
-  // Search users by displayName - only triggered on explicit button click/Enter
+  // Search users by displayName or email - case-insensitive, matches anywhere
   const handleUserSearch = async () => {
     if (userSearchQuery.length < 2) {
       setInviteError('Skriv minst 2 tegn for å søke');
@@ -136,16 +136,23 @@ export function GroupDetailPage() {
     setIsSearching(true);
     setInviteError(null);
     try {
+      const searchLower = userSearchQuery.toLowerCase();
+
+      // Fetch more users and filter client-side for flexible matching
       const usersQuery = query(
         collection(db, 'users'),
-        where('displayName', '>=', userSearchQuery),
-        where('displayName', '<=', userSearchQuery + '\uf8ff'),
-        limit(10)
+        limit(100)
       );
       const snapshot = await getDocs(usersQuery);
       const users = snapshot.docs
         .map(doc => ({ uid: doc.id, ...doc.data() } as User))
-        .filter(u => !memberUserIds.has(u.uid)); // Filter out existing members
+        .filter(u => {
+          if (memberUserIds.has(u.uid)) return false; // Exclude existing members
+          const name = (u.displayName || '').toLowerCase();
+          const email = (u.email || '').toLowerCase();
+          return name.includes(searchLower) || email.includes(searchLower);
+        })
+        .slice(0, 10); // Limit results to 10
       setUserSearchResults(users);
       if (users.length === 0) {
         setInviteError('Ingen brukere funnet');
