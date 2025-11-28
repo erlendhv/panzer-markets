@@ -5,8 +5,8 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import type { Market, User, GroupMember } from '../src/types/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import type { Market, User, GroupMember, Order, Trade } from '../src/types/firestore';
 
 // Initialize Firebase Admin
 if (getApps().length === 0) {
@@ -91,7 +91,9 @@ async function handler(
   }
 }
 
-async function deleteMarket(marketId: string): Promise<{ success: boolean }> {
+async function deleteMarket(marketId: string): Promise<{ success: boolean; refunds: Record<string, number> }> {
+  const refunds: Record<string, number> = {};
+
   await db.runTransaction(async (transaction) => {
     const marketRef = db.collection('markets').doc(marketId);
     const marketDoc = await transaction.get(marketRef);
@@ -116,6 +118,46 @@ async function deleteMarket(marketId: string): Promise<{ success: boolean }> {
       db.collection('orders').where('marketId', '==', marketId)
     );
 
+    // Get related trades
+    const tradesSnapshot = await transaction.get(
+      db.collection('trades').where('marketId', '==', marketId)
+    );
+
+    // Calculate refunds from open/partially filled orders
+    for (const orderDoc of ordersSnapshot.docs) {
+      const order = orderDoc.data() as Order;
+      if (order.status === 'open' || order.status === 'partially_filled') {
+        const refundAmount = order.remainingAmount;
+        if (refundAmount > 0) {
+          refunds[order.userId] = (refunds[order.userId] || 0) + refundAmount;
+        }
+      }
+    }
+
+    // Calculate refunds from trades (refund what each user paid)
+    for (const tradeDoc of tradesSnapshot.docs) {
+      const trade = tradeDoc.data() as Trade;
+      // Refund YES user what they paid
+      const yesPaid = trade.yesPrice * trade.sharesTraded;
+      refunds[trade.yesUserId] = (refunds[trade.yesUserId] || 0) + yesPaid;
+      // Refund NO user what they paid
+      const noPaid = trade.noPrice * trade.sharesTraded;
+      refunds[trade.noUserId] = (refunds[trade.noUserId] || 0) + noPaid;
+    }
+
+    // Apply refunds to user balances
+    for (const [userId, amount] of Object.entries(refunds)) {
+      const userRef = db.collection('users').doc(userId);
+      transaction.update(userRef, {
+        balance: FieldValue.increment(amount),
+      });
+    }
+
+    // Delete trades
+    for (const tradeDoc of tradesSnapshot.docs) {
+      transaction.delete(tradeDoc.ref);
+    }
+
     // Delete positions
     for (const positionDoc of positionsSnapshot.docs) {
       transaction.delete(positionDoc.ref);
@@ -130,7 +172,7 @@ async function deleteMarket(marketId: string): Promise<{ success: boolean }> {
     transaction.delete(marketRef);
   });
 
-  return { success: true };
+  return { success: true, refunds };
 }
 
 module.exports = handler;

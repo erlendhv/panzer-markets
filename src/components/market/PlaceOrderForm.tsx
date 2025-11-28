@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { useUserOrders } from '../../hooks/useUserOrders';
 import { placeOrder } from '../../services/api';
-import { getAvailableBalance } from '../../utils/balance';
 import type { Market, OrderSide } from '../../types/firestore';
 
 interface PlaceOrderFormProps {
@@ -11,7 +9,6 @@ interface PlaceOrderFormProps {
 
 export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
   const { user } = useAuth();
-  const { orders } = useUserOrders(user?.uid);
   const [side, setSide] = useState<OrderSide>('YES');
   const [priceLimit, setPriceLimit] = useState(
     () => market.lastTradedPrice.yes.toFixed(2)
@@ -64,8 +61,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
         throw new Error('Minimumsbeløp er $1');
       }
 
-      const availableBalance = getAvailableBalance(user.balance, orders);
-      if (amountNum > availableBalance) {
+      if (amountNum > user.balance) {
         throw new Error('Utilstrekkelig saldo');
       }
 
@@ -166,7 +162,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
             type="number"
             id="amount"
             min="1"
-            max={getAvailableBalance(user.balance, orders)}
+            max={user.balance}
             step="1"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -174,7 +170,7 @@ export function PlaceOrderForm({ market }: PlaceOrderFormProps) {
             required
           />
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            Tilgjengelig saldo: ${getAvailableBalance(user.balance, orders).toFixed(2)}
+            Tilgjengelig saldo: ${user.balance.toFixed(2)}
           </p>
         </div>
 
