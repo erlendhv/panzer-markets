@@ -2,11 +2,14 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, doc, updateDoc, addDoc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../hooks/useAuth';
-import type { MarketProposal, Market } from '../../types/firestore';
+import { useUserCache } from '../../contexts/UserCacheContext';
+import type { MarketProposal, Market, User } from '../../types/firestore';
 
 export function ProposalReview() {
   const { user } = useAuth();
+  const { getUsers } = useUserCache();
   const [proposals, setProposals] = useState<MarketProposal[]>([]);
+  const [proposerUsers, setProposerUsers] = useState<Map<string, User>>(new Map());
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
 
@@ -16,7 +19,7 @@ export function ProposalReview() {
       where('status', '==', 'pending')
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    const unsubscribe = onSnapshot(q, async (snapshot) => {
       const proposalData = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -24,11 +27,19 @@ export function ProposalReview() {
 
       proposalData.sort((a, b) => b.createdAt - a.createdAt);
       setProposals(proposalData);
+
+      // Fetch proposer user info
+      const proposerIds = proposalData.map(p => p.proposerId);
+      if (proposerIds.length > 0) {
+        const users = await getUsers(proposerIds);
+        setProposerUsers(users);
+      }
+
       setLoading(false);
     });
 
     return unsubscribe;
-  }, []);
+  }, [getUsers]);
 
   const handleApprove = async (proposal: MarketProposal, initialYesPrice: number) => {
     if (!user) return;
@@ -127,6 +138,7 @@ export function ProposalReview() {
         <ProposalCard
           key={proposal.id}
           proposal={proposal}
+          proposer={proposerUsers.get(proposal.proposerId)}
           onApprove={handleApprove}
           onReject={handleReject}
           processing={processingId === proposal.id}
@@ -139,13 +151,14 @@ export function ProposalReview() {
 
 interface ProposalCardProps {
   proposal: MarketProposal;
+  proposer: User | undefined;
   onApprove: (proposal: MarketProposal, initialPrice: number) => void;
   onReject: (proposal: MarketProposal, reason: string) => void;
   processing: boolean;
   formatDate: (timestamp: number) => string;
 }
 
-function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }: ProposalCardProps) {
+function ProposalCard({ proposal, proposer, onApprove, onReject, processing, formatDate }: ProposalCardProps) {
   const [initialPrice, setInitialPrice] = useState('0.50');
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -157,7 +170,20 @@ function ProposalCard({ proposal, onApprove, onReject, processing, formatDate }:
         {proposal.description && (
           <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{proposal.description}</p>
         )}
-        <div className="flex items-center gap-6 text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">Foreslått av:</span>
+            {proposer ? (
+              <span className="flex items-center gap-1.5">
+                {proposer.photoURL && (
+                  <img src={proposer.photoURL} alt="" className="w-5 h-5 rounded-full" />
+                )}
+                <span className="text-gray-700 dark:text-gray-300">{proposer.displayName || proposer.email}</span>
+              </span>
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500">Ukjent</span>
+            )}
+          </div>
           <div>
             <span className="font-medium">Foreslått avgjørelse:</span> {formatDate(proposal.suggestedResolutionDate)}
           </div>

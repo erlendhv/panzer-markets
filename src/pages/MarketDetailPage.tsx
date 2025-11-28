@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { doc, onSnapshot, getDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
-import type { Market, Group } from '../types/firestore';
+import type { Market, Group, User } from '../types/firestore';
 import { OrderBookDisplay } from '../components/market/OrderBookDisplay';
 import { PlaceOrderForm } from '../components/market/PlaceOrderForm';
 import { CommentsSection, CommentsSectionRef } from '../components/market/CommentsSection';
@@ -11,12 +11,17 @@ import { MarketHistoryChart } from "../components/market/MarketHistoryChart";
 import { MarketBannedUsers } from '../components/market/MarketBannedUsers';
 import { MarketResolveForm } from '../components/market/MarketResolveForm';
 import { useComments } from '../hooks/useComments';
+import { useAuth } from '../hooks/useAuth';
+import { useUserCache } from '../contexts/UserCacheContext';
 
 
 export function MarketDetailPage() {
   const { marketId } = useParams<{ marketId: string }>();
+  const { user } = useAuth();
+  const { getUsers } = useUserCache();
   const [market, setMarket] = useState<Market | null>(null);
   const [group, setGroup] = useState<Group | null>(null);
+  const [creator, setCreator] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { comments } = useComments(marketId);
   const chartRef = useRef<HTMLDivElement>(null);
@@ -46,9 +51,16 @@ export function MarketDetailPage() {
           } else {
             setGroup(null);
           }
+
+          // Fetch creator info
+          if (marketData.creatorId) {
+            const users = await getUsers([marketData.creatorId]);
+            setCreator(users.get(marketData.creatorId) || null);
+          }
         } else {
           setMarket(null);
           setGroup(null);
+          setCreator(null);
         }
         setLoading(false);
       },
@@ -59,7 +71,7 @@ export function MarketDetailPage() {
     );
 
     return unsubscribe;
-  }, [marketId]);
+  }, [marketId, getUsers]);
 
   if (loading) {
     return (
@@ -167,7 +179,7 @@ export function MarketDetailPage() {
             {market.description && (
               <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">{market.description}</p>
             )}
-            <div className="mt-2">
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
               {group ? (
                 <Link
                   to={`/groups/${group.id}`}
@@ -178,6 +190,15 @@ export function MarketDetailPage() {
               ) : (
                 <span className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
                   Offentlig marked
+                </span>
+              )}
+              {user?.isAdmin && creator && (
+                <span className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400">
+                  <span>Opprettet av:</span>
+                  {creator.photoURL && (
+                    <img src={creator.photoURL} alt="" className="w-5 h-5 rounded-full" />
+                  )}
+                  <span className="text-gray-700 dark:text-gray-300">{creator.displayName || creator.email}</span>
                 </span>
               )}
             </div>
