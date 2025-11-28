@@ -274,6 +274,11 @@ export interface ResolveMarketResponse {
   }[];
 }
 
+export interface DeleteMarketResponse {
+  success: boolean;
+  error?: string;
+}
+
 // ============================================================================
 // BAN USER FROM MARKET TYPES
 // ============================================================================
