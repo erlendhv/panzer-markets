@@ -192,6 +192,9 @@ async function matchOrder(
       }
     }
 
+    // Track positions created in this transaction to avoid overwriting on multiple matches
+    const positionsCreatedInTransaction = new Set<string>();
+
     // 4. Match orders
     let remainingAmount = orderRequest.amount;
     const executedTrades: Trade[] = [];
@@ -275,7 +278,8 @@ async function matchOrder(
         orderRequest.marketId,
         oppositeSide,
         sharesTraded,
-        makerActualCost
+        makerActualCost,
+        positionsCreatedInTransaction
       );
 
       // Update taker's position with their actual cost (the better price!)
@@ -287,7 +291,8 @@ async function matchOrder(
         orderRequest.marketId,
         orderRequest.side,
         sharesTraded,
-        takerActualCost
+        takerActualCost,
+        positionsCreatedInTransaction
       );
 
       // Deduct taker's actual cost (not their limit - they get the better price!)
@@ -358,6 +363,9 @@ async function matchOrder(
 
 /**
  * Updates a user's position after a trade using pre-fetched position data
+ *
+ * @param positionsCreatedInTransaction - Tracks positions created in this transaction
+ *   to avoid overwriting when multiple trades match in one order placement
  */
 function updateUserPositionWithCache(
   transaction: FirebaseFirestore.Transaction,
@@ -367,12 +375,16 @@ function updateUserPositionWithCache(
   marketId: string,
   side: OrderSide,
   shares: number,
-  cost: number
+  cost: number,
+  positionsCreatedInTransaction: Set<string>
 ): void {
   const positionRef = db.collection('positions').doc(positionId);
   const now = Date.now();
 
-  if (!positionDoc.exists) {
+  // Check if position existed before this transaction OR was created earlier in this transaction
+  const positionExists = positionDoc.exists || positionsCreatedInTransaction.has(positionId);
+
+  if (!positionExists) {
     // Create new position
     const newPosition: Position = {
       id: positionId,
@@ -387,8 +399,10 @@ function updateUserPositionWithCache(
       updatedAt: now,
     };
     transaction.set(positionRef, newPosition);
+    // Mark this position as created so subsequent matches use increment
+    positionsCreatedInTransaction.add(positionId);
   } else {
-    // Update existing position
+    // Update existing position (or one we just created in this transaction)
     const updates: any = {
       updatedAt: now,
     };
