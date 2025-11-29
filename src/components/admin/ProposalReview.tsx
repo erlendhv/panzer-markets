@@ -3,11 +3,13 @@ import { collection, query, where, onSnapshot, doc, updateDoc, addDoc } from 'fi
 import { db } from '../../lib/firebase';
 import { useAuth } from '../../hooks/useAuth';
 import { useUserCache } from '../../contexts/UserCacheContext';
-import type { MarketProposal, Market, User } from '../../types/firestore';
+import { useGroups } from '../../contexts/GroupContext';
+import type { MarketProposal, Market, User, Group } from '../../types/firestore';
 
 export function ProposalReview() {
   const { user } = useAuth();
   const { getUsers } = useUserCache();
+  const { allGroups } = useGroups();
   const [proposals, setProposals] = useState<MarketProposal[]>([]);
   const [proposerUsers, setProposerUsers] = useState<Map<string, User>>(new Map());
   const [loading, setLoading] = useState(true);
@@ -41,7 +43,7 @@ export function ProposalReview() {
     return unsubscribe;
   }, [getUsers]);
 
-  const handleApprove = async (proposal: MarketProposal, initialYesPrice: number) => {
+  const handleApprove = async (proposal: MarketProposal, initialYesPrice: number, groupId: string | null) => {
     if (!user) return;
 
     setProcessingId(proposal.id);
@@ -50,9 +52,9 @@ export function ProposalReview() {
       const newMarket: Omit<Market, 'id'> = {
         question: proposal.question,
         description: proposal.description,
-        creatorId: user.uid,
+        creatorId: proposal.proposerId,
         status: 'open',
-        groupId: proposal.groupId ?? null, // null for public markets
+        groupId: groupId, // Use admin-selected group, or null for public
         createdAt: Date.now(),
         resolutionDate: proposal.suggestedResolutionDate,
         resolvedAt: null,
@@ -139,6 +141,7 @@ export function ProposalReview() {
           key={proposal.id}
           proposal={proposal}
           proposer={proposerUsers.get(proposal.proposerId)}
+          groups={allGroups}
           onApprove={handleApprove}
           onReject={handleReject}
           processing={processingId === proposal.id}
@@ -152,14 +155,16 @@ export function ProposalReview() {
 interface ProposalCardProps {
   proposal: MarketProposal;
   proposer: User | undefined;
-  onApprove: (proposal: MarketProposal, initialPrice: number) => void;
+  groups: Group[];
+  onApprove: (proposal: MarketProposal, initialPrice: number, groupId: string | null) => void;
   onReject: (proposal: MarketProposal, reason: string) => void;
   processing: boolean;
   formatDate: (timestamp: number) => string;
 }
 
-function ProposalCard({ proposal, proposer, onApprove, onReject, processing, formatDate }: ProposalCardProps) {
+function ProposalCard({ proposal, proposer, groups, onApprove, onReject, processing, formatDate }: ProposalCardProps) {
   const [initialPrice, setInitialPrice] = useState('0.50');
+  const [selectedGroupId, setSelectedGroupId] = useState<string>(proposal.groupId ?? '');
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
 
@@ -194,38 +199,59 @@ function ProposalCard({ proposal, proposer, onApprove, onReject, processing, for
       </div>
 
       {!showRejectForm ? (
-        <div className="flex items-center gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex-1">
-            <label htmlFor={`price-${proposal.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Startpris JA
-            </label>
-            <input
-              id={`price-${proposal.id}`}
-              type="number"
-              min="0.01"
-              max="0.99"
-              step="0.01"
-              value={initialPrice}
-              onChange={(e) => setInitialPrice(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              disabled={processing}
-            />
-          </div>
-          <div className="flex gap-2 pt-6">
-            <button
-              onClick={() => onApprove(proposal, parseFloat(initialPrice))}
-              disabled={processing}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 text-sm font-medium"
-            >
-              {processing ? 'Behandler...' : 'Godkjenn'}
-            </button>
-            <button
-              onClick={() => setShowRejectForm(true)}
-              disabled={processing}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 text-sm font-medium"
-            >
-              Avslå
-            </button>
+        <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="flex flex-wrap items-end gap-4">
+            <div className="flex-1 min-w-[120px]">
+              <label htmlFor={`price-${proposal.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Startpris JA
+              </label>
+              <input
+                id={`price-${proposal.id}`}
+                type="number"
+                min="0.01"
+                max="0.99"
+                step="0.01"
+                value={initialPrice}
+                onChange={(e) => setInitialPrice(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={processing}
+              />
+            </div>
+            <div className="flex-1 min-w-[200px]">
+              <label htmlFor={`group-${proposal.id}`} className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Gruppe
+              </label>
+              <select
+                id={`group-${proposal.id}`}
+                value={selectedGroupId}
+                onChange={(e) => setSelectedGroupId(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={processing}
+              >
+                <option value="">Offentlig</option>
+                {groups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => onApprove(proposal, parseFloat(initialPrice), selectedGroupId || null)}
+                disabled={processing}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 text-sm font-medium"
+              >
+                {processing ? 'Behandler...' : 'Godkjenn'}
+              </button>
+              <button
+                onClick={() => setShowRejectForm(true)}
+                disabled={processing}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:bg-gray-400 text-sm font-medium"
+              >
+                Avslå
+              </button>
+            </div>
           </div>
         </div>
       ) : (
